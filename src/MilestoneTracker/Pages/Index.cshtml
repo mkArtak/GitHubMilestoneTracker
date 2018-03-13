@@ -4,8 +4,37 @@
     ViewData["Title"] = "Home page";
 }
 
+<style type="text/css">
+    .milestone-form {
+        margin-top: 6px;
+    }
+
+    .form-input-label {
+        font-weight: bolder;
+    }
+
+    .form-submit-button {
+        width: 150px;
+        margin-left: 6px;
+        display: inline;
+        float: right;
+    }
+
+    .milestone-form input {
+        display: inline;
+        float: right;
+    }
+</style>
 <div class="row">
     <div class="col-md-3">
-        @Html.Partial("WorkStatus", Model.Work)
+        @if (Model.Work != null)
+        {
+            @Html.Partial("WorkStatus", Model.Work)
+        }
+
+        <form method="get" class="milestone-form">
+            <span class="form-input-label">Milestone:</span> @Html.EditorFor(m => m.Milestone, "Milestone", "Milestone")
+            <button type="submit" class="form-submit-button">Retrieve</button>
+        </form>
     </div>
 </div>

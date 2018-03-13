@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace MilestoneTracker
 {
@@ -25,7 +26,10 @@ namespace MilestoneTracker
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.Configure<GitHubOptions>(this.Configuration);
+            GitHubOptions options = this.Configuration.GetSection(nameof(GitHubOptions)).Get<GitHubOptions>();
+            services.AddSingleton<WorkEstimatorFactory>(sp => new WorkEstimatorFactory(options));
+            services.AddSingleton<GitHubOptions>(options);
+            services.AddTransient<IWorkEstimator>(sp => sp.GetRequiredService<WorkEstimatorFactory>().Create());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

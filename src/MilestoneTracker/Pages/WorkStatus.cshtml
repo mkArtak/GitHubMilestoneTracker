@@ -1,18 +1,23 @@
-﻿@model IDictionary<string, int>
+﻿@model IDictionary<string, double>
 @*
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
 <style type="text/css">
-    .column-header{
+    .column-header {
+        font-size: 1.2em;
         font-weight: bolder;
     }
 
-    .row-first-item{
+    .row-first-item {
         font-weight: bold;
     }
 
     .row-item {
         text-align: center;
+    }
+
+    .row-bottom{
+        font-size: 1.1em;
     }
 </style>
 <h2>Work</h2>
@@ -30,4 +35,9 @@
             <td class="row-item">@item.Value</td>
         </tr>
     }
+
+    <tr>
+        <td class="row-bottom row-first-item">Total work left</td>
+        <td class="row-bottom row-item">@Model.Sum(item=>item.Value)</td>
+    </tr>
 </table>
