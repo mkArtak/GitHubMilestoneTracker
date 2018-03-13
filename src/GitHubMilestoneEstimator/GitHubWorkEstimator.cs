@@ -1,4 +1,5 @@
 ﻿using AM.Common.Validation;
+using GitHubMilestoneEstimator.Options;
 using Octokit;
 using System;
 using System.Collections.Generic;
@@ -10,19 +11,23 @@ namespace GitHub.Client
 {
     internal class GitHubWorkEstimator : IWorkEstimator
     {
-        private readonly IGitHubClient client;
+        private const string MilestoneParameterName = "Milestone";
 
-        public GitHubWorkEstimator(IGitHubClient client)
+        private readonly IGitHubClient client;
+        private readonly GitHubOptions options;
+
+        public GitHubWorkEstimator(IGitHubClient client, GitHubOptions options)
         {
             this.client = client.Ensure(nameof(client)).IsNotNull().Value;
+            this.options = options.Ensure(nameof(options)).IsNotNull().Value;
         }
 
-        public async Task<int> GetAmountOfWorkAsync(string assignee, string milestone, CancellationToken cancellationToken)
+        public async Task<double> GetAmountOfWorkAsync(string assignee, string milestone, CancellationToken cancellationToken)
         {
             SearchIssuesRequest request = new SearchIssuesRequest()
             {
                 Assignee = assignee,
-                Parameters = { { "Milestone", milestone } },
+                Parameters = { { MilestoneParameterName, milestone } },
                 Is = new[] { IssueIsQualifier.Open }
             };
             SearchIssuesResult result = await this.client.Search.SearchIssues(request);
@@ -44,20 +49,13 @@ namespace GitHub.Client
                 map[costLabel]++;
             }
 
-            int totalDays = 0;
-
-            totalDays += GetWorkDaysForCostLabels(map, "S", 1);
-            totalDays += GetWorkDaysForCostLabels(map, "M", 3);
-            totalDays += GetWorkDaysForCostLabels(map, "L", 7);
-            totalDays += GetWorkDaysForCostLabels(map, "XL", 13);
-
-            return totalDays;
+            return this.options.CostLabels.Sum(label => this.GetWorkDaysForCostLabels(map, label.Name, label.Factor));
         }
 
-        private int GetWorkDaysForCostLabels(IDictionary<string, int> map, string costLabelSuffix, int daysFactor)
+        private double GetWorkDaysForCostLabels(IDictionary<string, int> map, string costLabelName, double daysFactor)
         {
-            int result = 0;
-            if (map.TryGetValue($"cost: {costLabelSuffix}", out int numberOfItems))
+            double result = 0;
+            if (map.TryGetValue(costLabelName, out int numberOfItems))
             {
                 result = numberOfItems * daysFactor;
             }

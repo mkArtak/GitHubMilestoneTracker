@@ -5,6 +5,6 @@ namespace GitHub.Client
 {
     public interface IWorkEstimator
     {
-        Task<int> GetAmountOfWorkAsync(string assignee, string milestone, CancellationToken cancellationToken);
+        Task<double> GetAmountOfWorkAsync(string assignee, string milestone, CancellationToken cancellationToken);
     }
 }

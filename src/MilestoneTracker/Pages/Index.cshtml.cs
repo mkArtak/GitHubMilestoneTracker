@@ -1,5 +1,8 @@
-﻿using GitHub.Client;
+﻿using AM.Common.Validation;
+using GitHub.Client;
+using GitHubMilestoneEstimator.Options;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
@@ -9,11 +12,23 @@ namespace MilestoneTracker.Pages
 {
     public class IndexModel : PageModel
     {
-        public IDictionary<string, int> Work { get; set; }
+        public IDictionary<string, double> Work { get; set; }
+
+        private readonly IWorkEstimator workEstimator;
+
+        public string[] TeamMembers { get; }
+
+        public IndexModel(IWorkEstimator workEstimator, IOptions<GitHubOptions> gitHubOptions)
+        {
+            gitHubOptions.Ensure().IsNotNull();
+
+            this.workEstimator = workEstimator.Ensure().IsNotNull().Value;
+            this.TeamMembers = gitHubOptions.Value.TeamMembers;
+        }
 
         public async Task OnGet()
         {
-            IDictionary<string, int> teamWork = new ConcurrentDictionary<string, int>
+            IDictionary<string, double> teamWork = new ConcurrentDictionary<string, double>
             {
                 ["jbagga"] = 0,
                 ["NTaylorMullen"] = 0,
@@ -26,12 +41,11 @@ namespace MilestoneTracker.Pages
             };
 
             IList<Task> tasks = new List<Task>();
-            IWorkEstimator estimator = new WorkEstimatorFactory("aspnet").Create();
             foreach (var member in teamWork)
             {
                 tasks.Add(Task.Run(async () =>
                 {
-                    teamWork[member.Key] = await estimator.GetAmountOfWorkAsync(member.Key, "2.1.0-preview2", CancellationToken.None);
+                    teamWork[member.Key] = await this.workEstimator.GetAmountOfWorkAsync(member.Key, "2.1.0-preview2", CancellationToken.None);
                 }));
             }
 
