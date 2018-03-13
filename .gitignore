@@ -5,3 +5,5 @@
 /.vs
 /src/MilestoneTracker/bin
 /src/MilestoneTracker/obj
+/src/GitHubMilestoneEstimator/bin
+/src/GitHubMilestoneEstimator/obj
