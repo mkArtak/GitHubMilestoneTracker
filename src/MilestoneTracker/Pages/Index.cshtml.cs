@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,31 +15,20 @@ namespace MilestoneTracker.Pages
     {
         public IDictionary<string, double> Work { get; set; }
 
+        private readonly GitHubOptions gitHubOptions;
         private readonly IWorkEstimator workEstimator;
 
-        public string[] TeamMembers { get; }
+        public string[] TeamMembers { get => this.gitHubOptions.TeamMembers; }
 
         public IndexModel(IWorkEstimator workEstimator, IOptions<GitHubOptions> gitHubOptions)
         {
-            gitHubOptions.Ensure().IsNotNull();
-
+            this.gitHubOptions = gitHubOptions.Ensure().IsNotNull().Value.Value;
             this.workEstimator = workEstimator.Ensure().IsNotNull().Value;
-            this.TeamMembers = gitHubOptions.Value.TeamMembers;
         }
 
         public async Task OnGet()
         {
-            IDictionary<string, double> teamWork = new ConcurrentDictionary<string, double>
-            {
-                ["jbagga"] = 0,
-                ["NTaylorMullen"] = 0,
-                ["dougbu"] = 0,
-                ["ajaybhargavb"] = 0,
-                ["kichalla"] = 0,
-                ["javiercn"] = 0,
-                ["ryanbrandenburg"] = 0,
-                ["pranavkm"] = 0
-            };
+            IDictionary<string, double> teamWork = new ConcurrentDictionary<string, double>(this.TeamMembers.ToDictionary(item => item, item => 0.0));
 
             IList<Task> tasks = new List<Task>();
             foreach (var member in teamWork)
