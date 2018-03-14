@@ -3,15 +3,20 @@
 @*
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
+@{
+    IDictionary<string, double> sumByMilestone = new Dictionary<string, double>();
+}
 <style type="text/css">
     .column-header {
         font-size: 1.2em;
         font-weight: bolder;
-        width: 130px;
+        min-width: 150px;
+        text-align: center;
     }
 
     .row-first-item {
         font-weight: bold;
+        padding-left: 3px;
     }
 
     .row-item {
@@ -21,6 +26,7 @@
 
     .row-bottom {
         font-size: 1.1em;
+        font-weight: bolder;
     }
 </style>
 <h2>Work</h2>
@@ -30,6 +36,7 @@
             <td class="column-header">Member</td>
             @foreach (var milestone in Model.Milestones)
             {
+                sumByMilestone[milestone] = 0;
                 <td class="column-header">@milestone</td>
             }
         </tr>
@@ -41,13 +48,20 @@
 
             @foreach (var milestone in Model.Milestones)
             {
-                <td class="row-item">@Model[member, milestone]</td>
+                var value = Model[member, milestone];
+                sumByMilestone[milestone] += value;
+                <td class="row-item">@value</td>
             }
         </tr>
     }
 
-    @*<tr>
+    <tfoot>
+        <tr>
             <td class="row-bottom row-first-item">Total work left</td>
-            <td class="row-bottom row-item">@Model.Sum(item => item.Value)</td>
-        </tr>*@
+            @foreach (var milestone in Model.Milestones)
+            {
+                <td class="row-bottom row-item">@sumByMilestone[milestone]</td>
+            }
+        </tr>
+    </tfoot>
 </table>
