@@ -3,6 +3,7 @@ using GitHub.Client;
 using GitHubMilestoneEstimator.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MilestoneTracker.Model;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -14,13 +15,17 @@ namespace MilestoneTracker.Pages
 {
     public class IndexModel : PageModel
     {
+        private const char milestoneSeparatorCharacter = ';';
+
         private readonly GitHubOptions gitHubOptions;
         private readonly IWorkEstimator workEstimator;
 
         [FromQuery]
         public string Milestone { get; set; }
 
-        public IDictionary<string, double> Work { get; set; }
+        public IEnumerable<string> Milestones { get => this.Milestone?.Split(milestoneSeparatorCharacter); }
+
+        public WorkDataViewModel Work { get; set; }
 
         public string[] TeamMembers { get => this.gitHubOptions.TeamMembers; }
 
@@ -32,35 +37,35 @@ namespace MilestoneTracker.Pages
 
         public async Task OnGet()
         {
-            if (!String.IsNullOrWhiteSpace(this.Milestone))
+            if (this.Milestones != null)
             {
-                IDictionary<string, double> teamWork = await this.RetrieveWorkloadAsync();
-                Work = teamWork;
+                await this.RetrieveWorkloadAsync();
             }
         }
 
-        private async Task<IDictionary<string, double>> RetrieveWorkloadAsync()
+        private async Task RetrieveWorkloadAsync()
         {
-            IDictionary<string, double> teamWork = new ConcurrentDictionary<string, double>(this.TeamMembers.ToDictionary(item => item, item => 0.0));
+            this.Work = new WorkDataViewModel();
 
             IList<Task> tasks = new List<Task>();
             using (CancellationTokenSource tokenSource = new CancellationTokenSource())
             {
-                foreach (var member in teamWork)
+                foreach (var member in this.TeamMembers)
                 {
-                    tasks.Add(Task.Run(async () =>
+                    foreach (var milestone in this.Milestones)
                     {
-                        if (!tokenSource.IsCancellationRequested)
+                        tasks.Add(Task.Run(async () =>
                         {
-                            teamWork[member.Key] = await this.workEstimator.GetAmountOfWorkAsync(member.Key, this.Milestone, tokenSource.Token);
-                        }
-                    }));
+                            if (!tokenSource.IsCancellationRequested)
+                            {
+                                this.Work[member, milestone] = await this.workEstimator.GetAmountOfWorkAsync(member, milestone, tokenSource.Token);
+                            }
+                        }));
+                    }
                 }
 
                 await Task.WhenAll(tasks);
             }
-
-            return teamWork;
         }
     }
 }

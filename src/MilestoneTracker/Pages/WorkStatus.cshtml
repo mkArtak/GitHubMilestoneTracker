@@ -1,4 +1,5 @@
-﻿@model IDictionary<string, double>
+﻿@using MilestoneTracker.Model
+@model WorkDataViewModel
 @*
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
@@ -6,6 +7,7 @@
     .column-header {
         font-size: 1.2em;
         font-weight: bolder;
+        width: 130px;
     }
 
     .row-first-item {
@@ -14,9 +16,10 @@
 
     .row-item {
         text-align: center;
+        width: 130px;
     }
 
-    .row-bottom{
+    .row-bottom {
         font-size: 1.1em;
     }
 </style>
@@ -25,19 +28,26 @@
     <thead>
         <tr>
             <td class="column-header">Member</td>
-            <td class="column-header">Days of work</td>
+            @foreach (var milestone in Model.Milestones)
+            {
+                <td class="column-header">@milestone</td>
+            }
         </tr>
     </thead>
-    @foreach (var item in Model)
+    @foreach (var member in Model.Members)
     {
         <tr>
-            <td class="row-first-item">@item.Key</td>
-            <td class="row-item">@item.Value</td>
+            <td class="row-first-item">@member</td>
+
+            @foreach (var milestone in Model.Milestones)
+            {
+                <td class="row-item">@Model[member, milestone]</td>
+            }
         </tr>
     }
 
-    <tr>
-        <td class="row-bottom row-first-item">Total work left</td>
-        <td class="row-bottom row-item">@Model.Sum(item=>item.Value)</td>
-    </tr>
+    @*<tr>
+            <td class="row-bottom row-first-item">Total work left</td>
+            <td class="row-bottom row-item">@Model.Sum(item => item.Value)</td>
+        </tr>*@
 </table>
