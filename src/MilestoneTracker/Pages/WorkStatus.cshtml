@@ -26,6 +26,7 @@
 
     .row-last-item {
         font-weight: bolder;
+        text-align: center;
     }
 
     .row-bottom-item {
@@ -50,7 +51,7 @@
     @foreach (var member in Model.Members)
     {
         <tr>
-            <td class="row-first-item">@member</td>
+            <td class="row-item row-first-item">@member</td>
 
             @foreach (var milestone in Model.Milestones)
             {
@@ -59,7 +60,7 @@
                 <td class="row-item">@value</td>
             }
 
-            <td class="row-last-item">@Model[member]</td>
+            <td class="row-item row-last-item">@Model[member]</td>
         </tr>
     }
 

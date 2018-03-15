@@ -8,7 +8,6 @@ using MilestoneTracker.Model;
 using MilestoneTracker.Options;
 using Octokit;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -21,6 +20,7 @@ namespace MilestoneTracker.Pages
         private const char milestoneSeparatorCharacter = ';';
 
         private static readonly Random random = new Random(DateTime.UtcNow.Millisecond);
+        private const string AccessTokenKey = "CSRF:State";
 
         private readonly GitHubOptions gitHubOptions;
         private readonly GitHubAuthOptions authOptions;
@@ -30,7 +30,7 @@ namespace MilestoneTracker.Pages
         [FromQuery]
         public string Milestone { get; set; }
 
-        public IEnumerable<string> Milestones { get => this.Milestone?.Split(milestoneSeparatorCharacter); }
+        public IEnumerable<string> Milestones { get => this.Milestone?.Split(milestoneSeparatorCharacter, StringSplitOptions.RemoveEmptyEntries).Select(item => item.Trim()); }
 
         public WorkDataViewModel Work { get; set; }
 
@@ -55,7 +55,14 @@ namespace MilestoneTracker.Pages
                     return Redirect(this.GetOauthLoginUrl());
                 }
 
-                await this.RetrieveWorkloadAsync(workEstimator);
+                try
+                {
+                    await this.RetrieveWorkloadAsync(workEstimator);
+                }
+                catch (AuthorizationException)
+                {
+                    return Redirect(this.GetOauthLoginUrl());
+                }
             }
 
             return Page();
@@ -67,11 +74,11 @@ namespace MilestoneTracker.Pages
         {
             if (!String.IsNullOrEmpty(code))
             {
-                var expectedState = TempData["CSRF:State"] as string;
+                var expectedState = TempData.Peek(AccessTokenKey) as string;
                 if (state != expectedState)
                     throw new InvalidOperationException("SECURITY FAIL!");
 
-                TempData["CSRF:State"] = null;
+                TempData[AccessTokenKey] = null;
 
                 var token = await client.Oauth.CreateAccessToken(
                     new OauthTokenRequest(this.authOptions.ClientId, this.authOptions.ClientSecret, code));
@@ -108,7 +115,7 @@ namespace MilestoneTracker.Pages
 
         private IWorkEstimator GetWorkEstimator()
         {
-            var accessToken = TempData["OAuthToken"] as string;
+            var accessToken = TempData.Peek("OAuthToken") as string;
             if (accessToken != null)
             {
                 // This allows the client to make requests to the GitHub API on the user's behalf
@@ -124,13 +131,14 @@ namespace MilestoneTracker.Pages
         private string GetOauthLoginUrl()
         {
             string csrf = GenerateRandomString(24);
-            TempData["CSRF:State"] = csrf;
+            TempData[AccessTokenKey] = csrf;
 
             // 1. Redirect users to request GitHub access
             var request = new OauthLoginRequest(this.authOptions.ClientId)
             {
                 Scopes = { "user", "notifications" },
-                State = csrf
+                State = csrf,
+                //RedirectUri = new Uri($"{this.Request.Scheme}://{this.Request.Host}{this.Request.Path}{this.Request.QueryString}&handler=authorize")
             };
             var oauthLoginUrl = client.Oauth.GetGitHubLoginUrl(request);
             return oauthLoginUrl.ToString();
