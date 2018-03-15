@@ -1,15 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using GitHub.Client;
 using GitHubMilestoneEstimator.Options;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
+using MilestoneTracker.Options;
+using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 
 namespace MilestoneTracker
 {
@@ -25,11 +26,58 @@ namespace MilestoneTracker
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
-            GitHubOptions options = this.Configuration.GetSection(nameof(GitHubOptions)).Get<GitHubOptions>();
-            services.AddSingleton<WorkEstimatorFactory>(sp => new WorkEstimatorFactory(options));
-            services.AddSingleton<GitHubOptions>(options);
-            services.AddTransient<IWorkEstimator>(sp => sp.GetRequiredService<WorkEstimatorFactory>().Create());
+            services.AddMvc().AddRazorPagesOptions(options =>
+            {
+                options.Conventions.AddPageRoute("/index", "home/index");
+                options.Conventions.AddPageRoute("/authorize", "home/authorize");
+            });
+
+            services.AddOptions();
+            services.Configure<GitHubAuthOptions>(this.Configuration.GetSection("GitHubAuth"));
+
+            GitHubOptions gitHubOptions = this.Configuration.GetSection(nameof(GitHubOptions)).Get<GitHubOptions>();
+            services.AddSingleton<WorkEstimatorFactory>(sp => new WorkEstimatorFactory(gitHubOptions));
+            services.AddSingleton<GitHubOptions>(gitHubOptions);
+            //services.AddAuthentication(options =>
+            // {
+            //     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            //     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            //     options.DefaultChallengeScheme = "GitHub";
+            // })
+            //    .AddCookie(options =>
+            //    {
+            //        options.LoginPath = new PathString("/signin");
+            //    })
+            //    .AddOAuth("GitHub", options =>
+            //    {
+            //        options.CallbackPath = new PathString("/signin-github");
+            //        options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
+            //        options.TokenEndpoint = "https://github.com/login/oauth/access_token";
+            //        options.UserInformationEndpoint = "https://api.github.com/user";
+            //        options.ClaimsIssuer = "GitHub";
+
+            //        options.ClientId = Configuration["GitHubAuth::ClientId"];
+            //        options.ClientSecret = Configuration["GitHubAuth::ClientSecret"];
+            //        //options.Scope.Add("repo");
+            //        options.SaveTokens = true;
+
+            //        options.Events.OnCreatingTicket = async context =>
+            //        {
+            //            var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+            //            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            //            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
+
+            //            var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
+            //            response.EnsureSuccessStatusCode();
+
+            //            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
+
+            //            // Add GitHub claims
+            //            context.Identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, payload.Value<string>("id"), context.Options.ClaimsIssuer));
+            //            context.Identity.AddClaim(new Claim(ClaimTypes.Name, payload.Value<string>("login"), context.Options.ClaimsIssuer));
+            //            context.Identity.AddClaim(new Claim("urn:github:url", payload.Value<string>("url"), context.Options.ClaimsIssuer));
+            //        };
+            //    });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

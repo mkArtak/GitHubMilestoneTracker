@@ -7,7 +7,7 @@ namespace GitHub.Client
     public class WorkEstimatorFactory
     {
         private readonly GitHubOptions options;
-        private readonly IGitHubClient client;
+        private readonly GitHubClient client;
 
         public WorkEstimatorFactory(GitHubOptions options)
         {
@@ -17,8 +17,10 @@ namespace GitHub.Client
             this.client = new GitHubClient(new ProductHeaderValue(this.options.Organization));
         }
 
-        public IWorkEstimator Create()
+        public IWorkEstimator Create(string accessToken)
         {
+            this.client.Credentials = new Credentials(accessToken);
+
             return new GitHubWorkEstimator(this.client, this.options);
         }
     }
