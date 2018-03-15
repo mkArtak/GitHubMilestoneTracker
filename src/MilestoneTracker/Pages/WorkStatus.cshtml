@@ -24,9 +24,15 @@
         width: 130px;
     }
 
-    .row-bottom {
-        font-size: 1.1em;
+    .row-last-item {
         font-weight: bolder;
+        text-align: center;
+    }
+
+    .row-bottom-item {
+        text-align: center;
+        font-weight: bolder;
+        font-size: 1.1em;
     }
 </style>
 <h2>Work</h2>
@@ -39,12 +45,13 @@
                 sumByMilestone[milestone] = 0;
                 <td class="column-header">@milestone</td>
             }
+            <td class="column-header">Total work per member</td>
         </tr>
     </thead>
     @foreach (var member in Model.Members)
     {
         <tr>
-            <td class="row-first-item">@member</td>
+            <td class="row-item row-first-item">@member</td>
 
             @foreach (var milestone in Model.Milestones)
             {
@@ -52,16 +59,20 @@
                 sumByMilestone[milestone] += value;
                 <td class="row-item">@value</td>
             }
+
+            <td class="row-item row-last-item">@Model[member]</td>
         </tr>
     }
 
     <tfoot>
         <tr>
-            <td class="row-bottom row-first-item">Total work left</td>
+            <td class="row-bottom-item row-first-item">Total work left</td>
             @foreach (var milestone in Model.Milestones)
             {
-                <td class="row-bottom row-item">@sumByMilestone[milestone]</td>
+                <td class="row-bottom-item row-item">@sumByMilestone[milestone]</td>
             }
+
+            <td class="row-bottom-item row-last-item">@Model.TotalAmountOfWork</td>
         </tr>
     </tfoot>
 </table>
