@@ -1,6 +1,6 @@
-﻿namespace GitHubMilestoneEstimator.Options
+﻿namespace MilestoneTracker.Contracts
 {
-    public class CostLabelOption
+    public class CostMarker
     {
         public string Name { get; set; }
 

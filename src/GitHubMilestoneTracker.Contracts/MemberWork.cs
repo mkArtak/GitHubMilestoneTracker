@@ -1,4 +1,4 @@
-﻿namespace GitHub.Client
+﻿namespace MilestoneTracker.Contracts
 {
     public class MemberWork
     {

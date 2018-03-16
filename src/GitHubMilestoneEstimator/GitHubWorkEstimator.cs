@@ -1,5 +1,5 @@
 ﻿using AM.Common.Validation;
-using GitHubMilestoneEstimator.Options;
+using MilestoneTracker.Contracts;
 using Octokit;
 using System;
 using System.Collections.Generic;
@@ -14,9 +14,9 @@ namespace GitHub.Client
         private const string MilestoneParameterName = "Milestone";
 
         private readonly IGitHubClient client;
-        private readonly GitHubOptions options;
+        private readonly TeamInfo options;
 
-        public GitHubWorkEstimator(IGitHubClient client, GitHubOptions options)
+        public GitHubWorkEstimator(IGitHubClient client, TeamInfo options)
         {
             this.client = client.Ensure(nameof(client)).IsNotNull().Value;
             this.options = options.Ensure(nameof(options)).IsNotNull().Value;

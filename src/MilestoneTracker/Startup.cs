@@ -1,16 +1,10 @@
 using GitHub.Client;
-using GitHubMilestoneEstimator.Options;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MilestoneTracker.Contracts;
 using MilestoneTracker.Options;
-using Newtonsoft.Json.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 
 namespace MilestoneTracker
 {
@@ -35,9 +29,9 @@ namespace MilestoneTracker
             services.AddOptions();
             services.Configure<GitHubAuthOptions>(this.Configuration.GetSection("GitHubAuth"));
 
-            GitHubOptions gitHubOptions = this.Configuration.GetSection(nameof(GitHubOptions)).Get<GitHubOptions>();
+            TeamInfo gitHubOptions = this.Configuration.GetSection(nameof(TeamInfo)).Get<TeamInfo>();
             services.AddSingleton<WorkEstimatorFactory>(sp => new WorkEstimatorFactory(gitHubOptions));
-            services.AddSingleton<GitHubOptions>(gitHubOptions);
+            services.AddSingleton<TeamInfo>(gitHubOptions);
             //services.AddAuthentication(options =>
             // {
             //     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;

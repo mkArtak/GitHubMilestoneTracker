@@ -7,3 +7,5 @@
 /src/MilestoneTracker/obj
 /src/GitHubMilestoneEstimator/bin
 /src/GitHubMilestoneEstimator/obj
+/src/GitHubMilestoneTracker.Contracts/bin
+/src/GitHubMilestoneTracker.Contracts/obj

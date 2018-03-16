@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace GitHub.Client
+namespace MilestoneTracker.Contracts
 {
     public interface IWorkEstimator
     {

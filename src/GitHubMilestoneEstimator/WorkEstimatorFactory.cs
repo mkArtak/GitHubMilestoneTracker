@@ -1,15 +1,15 @@
 ﻿using AM.Common.Validation;
-using GitHubMilestoneEstimator.Options;
+using MilestoneTracker.Contracts;
 using Octokit;
 
 namespace GitHub.Client
 {
     public class WorkEstimatorFactory
     {
-        private readonly GitHubOptions options;
+        private readonly TeamInfo options;
         private readonly GitHubClient client;
 
-        public WorkEstimatorFactory(GitHubOptions options)
+        public WorkEstimatorFactory(TeamInfo options)
         {
             options.Ensure(nameof(options)).IsNotNull();
 

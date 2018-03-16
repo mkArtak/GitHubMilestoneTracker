@@ -1,9 +1,9 @@
 ﻿using AM.Common.Validation;
 using GitHub.Client;
-using GitHubMilestoneEstimator.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
+using MilestoneTracker.Contracts;
 using MilestoneTracker.Model;
 using MilestoneTracker.Options;
 using Octokit;
@@ -23,7 +23,7 @@ namespace MilestoneTracker.Pages
         private const string AuthStateKey = "CSRF:State";
         private const string AuthTokenKey = "OAuthToken";
 
-        private readonly GitHubOptions gitHubOptions;
+        private readonly TeamInfo gitHubOptions;
         private readonly GitHubAuthOptions authOptions;
         private readonly WorkEstimatorFactory workEstimatorFactory;
         private readonly GitHubClient client;
@@ -38,7 +38,7 @@ namespace MilestoneTracker.Pages
 
         public string[] TeamMembers { get => this.gitHubOptions.TeamMembers; }
 
-        public IndexModel(WorkEstimatorFactory workEstimatorFactory, GitHubOptions gitHubOptions, IOptions<GitHubAuthOptions> authOptions)
+        public IndexModel(WorkEstimatorFactory workEstimatorFactory, TeamInfo gitHubOptions, IOptions<GitHubAuthOptions> authOptions)
         {
             this.gitHubOptions = gitHubOptions.Ensure(nameof(gitHubOptions)).IsNotNull().Value;
             this.authOptions = authOptions.Ensure(o => o.Value).IsNotNull().Value;
