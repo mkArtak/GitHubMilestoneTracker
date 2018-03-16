@@ -35,7 +35,9 @@ namespace GitHub.Client
             IDictionary<string, int> map = new Dictionary<string, int>();
             foreach (var issue in result.Items.Where(item => item.Milestone?.Title == milestone))
             {
-                string costLabel = issue.Labels.SingleOrDefault(item => item.Name.StartsWith("cost: ", StringComparison.OrdinalIgnoreCase))?.Name;
+                string costLabel = issue.Labels.SingleOrDefault(
+                    item => this.options.CostLabels.Any(
+                        lbl => lbl.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase)))?.Name;
                 if (costLabel == null)
                 {
                     continue;

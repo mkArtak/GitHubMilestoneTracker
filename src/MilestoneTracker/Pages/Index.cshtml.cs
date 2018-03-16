@@ -27,11 +27,12 @@ namespace MilestoneTracker.Pages
         private readonly GitHubAuthOptions authOptions;
         private readonly WorkEstimatorFactory workEstimatorFactory;
         private readonly GitHubClient client;
+        private readonly Lazy<IEnumerable<string>> lazyMilestonesLoader;
 
         [FromQuery]
         public string Milestone { get; set; }
 
-        public IEnumerable<string> Milestones { get => this.Milestone?.Split(milestoneSeparatorCharacter, StringSplitOptions.RemoveEmptyEntries).Select(item => item.Trim()); }
+        public IEnumerable<string> Milestones { get => this.lazyMilestonesLoader.Value; }
 
         public WorkDataViewModel Work { get; set; }
 
@@ -44,6 +45,11 @@ namespace MilestoneTracker.Pages
             this.workEstimatorFactory = workEstimatorFactory.Ensure(nameof(workEstimatorFactory)).IsNotNull().Value;
 
             this.client = new GitHubClient(new ProductHeaderValue(gitHubOptions.Organization), new Uri("https://github.com/"));
+            this.Milestone = gitHubOptions.DefaultMilestonesToTrack;
+
+            this.lazyMilestonesLoader = new Lazy<IEnumerable<string>>(() => this.Milestone?
+                .Split(milestoneSeparatorCharacter, StringSplitOptions.RemoveEmptyEntries)
+                .Select(item => item.Trim()));
         }
 
         public async Task<IActionResult> OnGet()
@@ -64,6 +70,10 @@ namespace MilestoneTracker.Pages
                 {
                     return Redirect(this.GetOauthLoginUrl());
                 }
+                catch (Exception ex)
+                {
+                    ;
+                }
             }
 
             return Page();
@@ -77,10 +87,11 @@ namespace MilestoneTracker.Pages
             {
                 var expectedState = TempData.Peek(AuthStateKey) as string;
                 if (state != expectedState)
-                    throw new InvalidOperationException("SECURITY FAIL!");
+                {
+                    throw new InvalidOperationException("Security failure!");
+                }
 
                 TempData[AuthStateKey] = null;
-
                 var token = await client.Oauth.CreateAccessToken(
                     new OauthTokenRequest(this.authOptions.ClientId, this.authOptions.ClientSecret, code));
                 TempData[AuthTokenKey] = token.AccessToken;
@@ -117,16 +128,9 @@ namespace MilestoneTracker.Pages
         private IWorkEstimator GetWorkEstimator()
         {
             var accessToken = TempData.Peek(AuthTokenKey) as string;
-            if (accessToken != null)
-            {
-                // This allows the client to make requests to the GitHub API on the user's behalf
-                // without ever having the user's OAuth credentials.
-                return this.workEstimatorFactory.Create(accessToken);
-            }
-            else
-            {
-                return null;
-            }
+            // This allows the client to make requests to the GitHub API on behalf of the user
+            // without ever having the user's OAuth credentials.
+            return accessToken == null ? null : this.workEstimatorFactory.Create(accessToken);
         }
 
         private string GetOauthLoginUrl()

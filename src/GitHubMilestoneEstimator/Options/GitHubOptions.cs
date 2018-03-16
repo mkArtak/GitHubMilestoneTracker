@@ -7,5 +7,7 @@
         public string[] TeamMembers { get; set; }
 
         public CostLabelOption[] CostLabels { get; set; }
+
+        public string DefaultMilestonesToTrack { get; set; }
     }
 }
