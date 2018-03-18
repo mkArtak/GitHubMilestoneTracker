@@ -1,11 +1,11 @@
-﻿using MilestoneTracker.Contracts;
+﻿using AM.Common.Validation;
+using MilestoneTracker.Contracts;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using AM.Common.Validation;
 using System.Threading.Tasks;
 
 namespace MIlestoneTracker.FileBasedTeamStore
@@ -32,7 +32,7 @@ namespace MIlestoneTracker.FileBasedTeamStore
 
             this.teams.Add(info.Name, info);
 
-            AddTeamToStore(info);
+            await AddTeamToStoreAsync(info);
         }
 
         public Task<PagedDataResponse<TeamInfo>> GetAllTeamsAsync(int count, CancellationToken cancellationToken, string continuationToken)
@@ -68,9 +68,18 @@ namespace MIlestoneTracker.FileBasedTeamStore
             }
         }
 
-        private void AddTeamToStore(TeamInfo info)
+        private Task AddTeamToStoreAsync(TeamInfo info)
         {
-            throw new NotImplementedException();
+            return Task.Run(() =>
+            {
+                string path = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
+                using (StreamWriter writer = new StreamWriter(path, true))
+                using (JsonTextWriter jsonWriter = new JsonTextWriter(writer))
+                {
+                    JsonSerializer jsonSerializer = new JsonSerializer();
+                    jsonSerializer.Serialize(jsonWriter, info);
+                }
+            });
         }
     }
 }
