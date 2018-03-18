@@ -34,6 +34,14 @@
         font-weight: bolder;
         font-size: 1.1em;
     }
+
+    .row-item-max {
+        color: red;
+    }
+
+    .row-item-min {
+        color: green;
+    }
 </style>
 <h2>Work</h2>
 <table class="table-bordered">
@@ -51,7 +59,7 @@
     @foreach (var member in Model.Members)
     {
         <tr>
-            <td class="row-item row-first-item">@member</td>
+            <td class="row-item row-first-item @Model.GetClassForMemberCell(member)">@member</td>
 
             @foreach (var milestone in Model.Milestones)
             {
@@ -60,7 +68,7 @@
                 <td class="row-item">@value</td>
             }
 
-            <td class="row-item row-last-item">@Model[member]</td>
+            <td class="row-item row-last-item @Model.GetClassForMemberCell(member)">@Model[member]</td>
         </tr>
     }
 
