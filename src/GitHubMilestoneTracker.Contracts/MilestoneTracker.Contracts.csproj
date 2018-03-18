@@ -3,5 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.1</TargetFramework>
   </PropertyGroup>
-
+  <ItemGroup>
+    <PackageReference Include="AM.Common.Validation" Version="2.5.1" />
+  </ItemGroup>
 </Project>

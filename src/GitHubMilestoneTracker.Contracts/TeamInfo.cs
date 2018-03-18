@@ -2,6 +2,8 @@
 {
     public class TeamInfo
     {
+        public string Name { get; set; }
+
         public string Organization { get; set; }
 
         public string[] TeamMembers { get; set; }
