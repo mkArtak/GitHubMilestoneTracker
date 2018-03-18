@@ -9,3 +9,5 @@
 /src/GitHubMilestoneEstimator/obj
 /src/GitHubMilestoneTracker.Contracts/bin
 /src/GitHubMilestoneTracker.Contracts/obj
+/src/MIlestoneTracker.FileBasedTeamStore/bin
+/src/MIlestoneTracker.FileBasedTeamStore/obj
