@@ -30,10 +30,9 @@ namespace MilestoneTracker
             services.AddOptions();
             services.Configure<GitHubAuthOptions>(this.Configuration.GetSection("GitHubAuth"));
             services.AddTeams(this.Configuration);
+            services.AddSingleton<WorkEstimatorFactory>();
 
-            //TeamInfo gitHubOptions = this.Configuration.GetSection(nameof(TeamInfo)).Get<TeamInfo>();
-            services.AddSingleton<WorkEstimatorFactory>();// sp => new WorkEstimatorFactory(gitHubOptions));
-            //services.AddSingleton<TeamInfo>(gitHubOptions);
+            #region Authentication config
             //services.AddAuthentication(options =>
             // {
             //     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -73,7 +72,8 @@ namespace MilestoneTracker
             //            context.Identity.AddClaim(new Claim(ClaimTypes.Name, payload.Value<string>("login"), context.Options.ClaimsIssuer));
             //            context.Identity.AddClaim(new Claim("urn:github:url", payload.Value<string>("url"), context.Options.ClaimsIssuer));
             //        };
-            //    });
+            //    }); 
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
