@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MilestoneTracker.Contracts;
+using MilestoneTracker.DataManagement.Teams;
 using MilestoneTracker.Options;
 
 namespace MilestoneTracker
@@ -28,10 +29,11 @@ namespace MilestoneTracker
 
             services.AddOptions();
             services.Configure<GitHubAuthOptions>(this.Configuration.GetSection("GitHubAuth"));
+            services.AddTeams(this.Configuration);
 
-            TeamInfo gitHubOptions = this.Configuration.GetSection(nameof(TeamInfo)).Get<TeamInfo>();
-            services.AddSingleton<WorkEstimatorFactory>(sp => new WorkEstimatorFactory(gitHubOptions));
-            services.AddSingleton<TeamInfo>(gitHubOptions);
+            //TeamInfo gitHubOptions = this.Configuration.GetSection(nameof(TeamInfo)).Get<TeamInfo>();
+            services.AddSingleton<WorkEstimatorFactory>();// sp => new WorkEstimatorFactory(gitHubOptions));
+            //services.AddSingleton<TeamInfo>(gitHubOptions);
             //services.AddAuthentication(options =>
             // {
             //     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;

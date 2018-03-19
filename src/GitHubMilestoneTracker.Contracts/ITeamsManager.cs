@@ -19,7 +19,7 @@ namespace MilestoneTracker.Contracts
         /// <param name="continuationToken">An optional continuation token to retrieve next set of the results from the previous query.</param>
         /// <param name="cancellationToken">A cancellation token, which will allow the caller to request cancellation.</param>
         /// <returns>A tuple </returns>
-        Task<PagedDataResponse<TeamInfo>> GetAllTeamsAsync(int count, CancellationToken cancellationToken, string continuationToken);
+        Task<PagedDataResponse<TeamInfo>> GetTeamsAsync(int count, CancellationToken cancellationToken, string continuationToken);
 
         /// <summary>
         /// Registeres data of a new team.

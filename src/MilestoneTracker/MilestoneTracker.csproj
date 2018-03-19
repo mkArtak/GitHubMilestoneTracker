@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GitHubMilestoneEstimator\GitHubMilestoneEstimator.csproj" />
     <ProjectReference Include="..\GitHubMilestoneTracker.Contracts\MilestoneTracker.Contracts.csproj" />
+    <ProjectReference Include="..\MIlestoneTracker.FileBasedTeamStore\MilestoneTracker.DataManagement.Teams.csproj" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />

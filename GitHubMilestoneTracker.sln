@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MilestoneTracker.Contracts", "src\GitHubMilestoneTracker.Contracts\MilestoneTracker.Contracts.csproj", "{08BCAC7D-17EE-47B2-A50F-B1175A0F54B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIlestoneTracker.FileBasedTeamStore", "src\MIlestoneTracker.FileBasedTeamStore\MIlestoneTracker.FileBasedTeamStore.csproj", "{24913B96-BA51-4777-9963-77082447F083}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MilestoneTracker.DataManagement.Teams", "src\MIlestoneTracker.FileBasedTeamStore\MilestoneTracker.DataManagement.Teams.csproj", "{24913B96-BA51-4777-9963-77082447F083}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
