@@ -21,20 +21,20 @@ namespace MilestoneTracker
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().AddRazorPagesOptions(options =>
-            {
-                //options.Conventions.AddPageRoute("/index", "home/index");
-                //options.Conventions.AddPageRoute("/authorize", "home/authorize");
-            });
+            services.AddMvc();
 
             services.AddOptions();
             services.Configure<GitHubAuthOptions>(this.Configuration.GetSection("GitHubAuth"));
             services.AddTeams(this.Configuration);
             services.AddUserTeams(this.Configuration);
+
             services.AddSingleton<WorkEstimatorFactory>();
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = "GitHub";
             })
             .AddCookie(options =>
             {
@@ -46,7 +46,8 @@ namespace MilestoneTracker
                 options.ClientId = this.Configuration["GitHubAuth:ClientId"];
                 options.ClientSecret = this.Configuration["GitHubAuth:ClientSecret"];
                 options.Scope.Add("user:email");
-                options.Scope.Add("");
+                options.Scope.Add("repo");
+                options.SaveTokens = true;
             });
         }
 

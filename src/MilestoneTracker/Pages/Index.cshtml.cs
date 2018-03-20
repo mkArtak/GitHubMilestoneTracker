@@ -1,6 +1,9 @@
 ﻿using AM.Common.Validation;
 using GitHub.Client;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
@@ -133,7 +136,8 @@ namespace MilestoneTracker.Pages
 
         private async Task<IWorkEstimator> GetWorkEstimatorAsync(CancellationToken cancellationToken)
         {
-            var accessToken = TempData.Peek(AuthTokenKey) as string;
+            //var accessToken = TempData.Peek(AuthTokenKey) as string;
+            string accessToken = await HttpContext.GetTokenAsync("access_token");
 
             // This allows the client to make requests to the GitHub API on behalf of the user
             // without ever having the user's OAuth credentials.

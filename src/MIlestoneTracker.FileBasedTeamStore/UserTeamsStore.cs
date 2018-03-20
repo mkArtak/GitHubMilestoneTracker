@@ -19,6 +19,13 @@ namespace MilestoneTracker.DataManagement.Teams
             options.Ensure(o => o.Value).IsNotNull();
 
             this.mappingsOptions = options.Value;
+
+            /// TODO: remove - a temp around
+            if (this.mappingsOptions.Mappings == null)
+            {
+                this.mappingsOptions = new UserTeamsOptions { Mappings = new Dictionary<string, IEnumerable<string>>() };
+                this.mappingsOptions.Mappings.Add("mkArtakMSFT", new[] { "ASP.NET MVC" });
+            }
         }
 
         public Task<IEnumerable<string>> GetUserTeamsAsync(string userName, CancellationToken token)
