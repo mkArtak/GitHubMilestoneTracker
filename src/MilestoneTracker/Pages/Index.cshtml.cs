@@ -29,6 +29,7 @@ namespace MilestoneTracker.Pages
         private readonly WorkEstimatorFactory workEstimatorFactory;
         private readonly Lazy<IEnumerable<string>> lazyMilestonesLoader;
         private readonly ITeamsManager teamsManager;
+        private readonly IUserTeamsManager userTeamsManager;
         private TeamInfo currentTeam = null;
 
         [FromQuery]
@@ -38,16 +39,15 @@ namespace MilestoneTracker.Pages
 
         public WorkDataViewModel Work { get; set; }
 
-        [FromQuery]
-        public string TeamName { get; set; }
-
         public IndexModel(
             WorkEstimatorFactory workEstimatorFactory,
             ITeamsManager teamsManager,
+            IUserTeamsManager userTeamsManager,
             IOptions<GitHubAuthOptions> authOptions)
         {
             this.authOptions = authOptions.Ensure(o => o.Value).IsNotNull().Value;
             this.workEstimatorFactory = workEstimatorFactory.Ensure(nameof(workEstimatorFactory)).IsNotNull().Value;
+            this.userTeamsManager = userTeamsManager.Ensure(nameof(userTeamsManager)).IsNotNull().Value;
 
             this.teamsManager = teamsManager.Ensure(nameof(teamsManager)).IsNotNull().Value;
 
@@ -172,7 +172,9 @@ namespace MilestoneTracker.Pages
         {
             if (this.currentTeam == null)
             {
-                this.currentTeam = await this.teamsManager.GetTeamInfoAsync(this.TeamName, token);
+                // TODO: Fix: Using only the first team for now for simplicity
+                IEnumerable<string> teams = await this.userTeamsManager.GetUserTeamsAsync(User.Identity.Name, CancellationToken.None);
+                this.currentTeam = await this.teamsManager.GetTeamInfoAsync(teams.First(), token);
             }
 
             return this.currentTeam;

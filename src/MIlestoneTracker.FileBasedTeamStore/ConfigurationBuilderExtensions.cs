@@ -18,5 +18,16 @@ namespace MilestoneTracker.DataManagement.Teams
             serviceCollection.AddScoped<ITeamsManager, ConfigurationBasedTeamStore>();
             return serviceCollection;
         }
+
+        public static IServiceCollection AddUserTeams(this IServiceCollection serviceCollection, IConfiguration configuration)
+        {
+            serviceCollection.Ensure(nameof(serviceCollection)).IsNotNull();
+            configuration.Ensure(nameof(configuration)).IsNotNull();
+
+            serviceCollection.AddOptions();
+            serviceCollection.Configure<UserTeamsOptions>(configuration.GetSection("UserTeams"));
+            serviceCollection.AddScoped<IUserTeamsManager, UserTeamsStore>();
+            return serviceCollection;
+        }
     }
 }

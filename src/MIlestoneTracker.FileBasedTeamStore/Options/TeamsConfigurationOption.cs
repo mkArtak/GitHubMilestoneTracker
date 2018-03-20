@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MilestoneTracker.DataManagement.Teams.Options
 {
-    public class TeamsConfigurationOption
+    internal class TeamsConfigurationOption
     {
         public IEnumerable<TeamInfo> Teams { get; set; }
     }

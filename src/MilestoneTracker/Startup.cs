@@ -30,6 +30,7 @@ namespace MilestoneTracker
             services.AddOptions();
             services.Configure<GitHubAuthOptions>(this.Configuration.GetSection("GitHubAuth"));
             services.AddTeams(this.Configuration);
+            services.AddUserTeams(this.Configuration);
             services.AddSingleton<WorkEstimatorFactory>();
             services.AddAuthentication(options =>
             {
@@ -45,6 +46,7 @@ namespace MilestoneTracker
                 options.ClientId = this.Configuration["GitHubAuth:ClientId"];
                 options.ClientSecret = this.Configuration["GitHubAuth:ClientSecret"];
                 options.Scope.Add("user:email");
+                options.Scope.Add("");
             });
         }
 
