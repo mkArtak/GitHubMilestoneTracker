@@ -13,25 +13,26 @@ namespace MilestoneTracker.Pages
             get; private set;
         }
 
-        public async Task<IActionResult> OnGet()
+        public IActionResult OnGetAsync()
         {
-            this.Providers = await HttpContext.GetExternalProvidersAsync();
-            return Page();
-        }
+            string provider = "GitHub";
+            //    this.Providers = await HttpContext.GetExternalProvidersAsync();
+            //    return Page();
+            //}
 
-        public async Task<IActionResult> OnPostAsync([FromForm]string provider)
-        {
-            // Note: the "provider" parameter corresponds to the external
-            // authentication provider choosen by the user agent.
-            if (string.IsNullOrWhiteSpace(provider))
-            {
-                return new BadRequestResult();
-            }
+            //public async Task<IActionResult> OnPostAsync([FromForm]string provider)
+            //{
+            //    // Note: the "provider" parameter corresponds to the external
+            //    // authentication provider choosen by the user agent.
+            //    if (string.IsNullOrWhiteSpace(provider))
+            //    {
+            //        return new BadRequestResult();
+            //    }
 
-            if (!await HttpContext.IsProviderSupportedAsync(provider))
-            {
-                return new BadRequestResult();
-            }
+            //    if (!await HttpContext.IsProviderSupportedAsync(provider))
+            //    {
+            //        return new BadRequestResult();
+            //    }
 
             // Instruct the middleware corresponding to the requested external identity
             // provider to redirect the user agent to its own authorization endpoint.
