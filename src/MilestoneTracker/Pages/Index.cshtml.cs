@@ -86,28 +86,6 @@ namespace MilestoneTracker.Pages
             return Page();
         }
 
-        [HttpGet]
-        // This is the Callback URL that the GitHub OAuth Login page will redirect back to.
-        public async Task<IActionResult> OnGetAuthorize(string code, string state)
-        {
-            if (!String.IsNullOrEmpty(code))
-            {
-                var expectedState = TempData.Peek(AuthStateKey) as string;
-                if (state != expectedState)
-                {
-                    throw new InvalidOperationException("Security failure!");
-                }
-
-                TempData[AuthStateKey] = null;
-                GitHubClient client = await this.GetClientAsync(CancellationToken.None);
-                var token = await client.Oauth.CreateAccessToken(
-                    new OauthTokenRequest(this.authOptions.ClientId, this.authOptions.ClientSecret, code));
-                TempData[AuthTokenKey] = token.AccessToken;
-            }
-
-            return RedirectToAction("Index");
-        }
-
         private async Task RetrieveWorkloadAsync(IWorkEstimator workEstimator, CancellationToken cancellationToken)
         {
             this.Work = new WorkDataViewModel();
