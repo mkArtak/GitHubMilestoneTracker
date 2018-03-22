@@ -30,10 +30,9 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-page="/Index">Home</a></li>
-                    @*<li><a asp-page="/About">About</a></li>
-                        <li><a asp-page="/Contact">Contact</a></li>*@
-
+                    <li><a asp-page="/Index">Team data</a></li>
+                    <li><a asp-page="/TeamBurndown">Team Burndown</a></li>
+                    <li><a asp-page="/Charts">Burndown chart</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     @if (User.Identity.IsAuthenticated)
