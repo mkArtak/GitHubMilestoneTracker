@@ -1,0 +1,63 @@
+﻿@using MilestoneTracker.Model
+@model BurndownChartModel
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<style type="text/css">
+    .chart-area {
+        width: 600px;
+        heigth: 400px;
+    }
+</style>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<div id="chart_div" class="chart-area"></div>
+<script type="text/javascript">
+    google.charts.load('current', {
+        packages: ['corechart', 'line']
+    });
+    google.charts.setOnLoadCallback(LoadData);
+
+    function LoadData() {
+        $.ajax({
+            url: '@Url.Action("GetBurndownDataAsync", "Burndown", new { teamName= Model.TeamName })',
+            type: 'POST',
+            dataType: 'json',
+            data: { },
+            success: function (data, err) {
+                PopulationChart(data);
+                return false;
+            }
+        });
+
+        return false;
+    }
+
+    function PopulationChart(response) {
+        var data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'Date');
+        data.addColumn('number', 'Days worth of work left');
+
+        $.each(response, function (i, item) {
+            var date = new Date(item.date);
+
+            data.addRow([date, item.daysOfWorkLeft]);
+        });
+
+        var options = {
+            hAxis: {
+                title: 'Date',
+                format: 'dd, MMM'
+            },
+            vAxis: {
+                title: 'Work left'
+            },
+            series: {
+                1: { curveType: 'function' }
+            }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+        return false;
+    }
+</script>  

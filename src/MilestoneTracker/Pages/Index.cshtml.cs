@@ -42,6 +42,8 @@ namespace MilestoneTracker.Pages
 
         public WorkDataViewModel Work { get; set; }
 
+        public BurndownChartModel BurndownData { get; set; }
+
         public IndexModel(
             WorkEstimatorFactory workEstimatorFactory,
             ITeamsManager teamsManager,
@@ -64,18 +66,11 @@ namespace MilestoneTracker.Pages
             if (this.Milestones != null)
             {
                 IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(CancellationToken.None);
-                if (workEstimator == null)
-                {
-                    return Redirect(await this.GetOauthLoginUrlAsync(CancellationToken.None));
-                }
 
                 try
                 {
                     await this.RetrieveWorkloadAsync(workEstimator, CancellationToken.None);
-                }
-                catch (AuthorizationException)
-                {
-                    return Redirect(await this.GetOauthLoginUrlAsync(CancellationToken.None));
+                    this.BurndownData = new BurndownChartModel { Milestones = this.Milestones, TeamName = this.currentTeam.Name };
                 }
                 catch (Exception ex)
                 {
@@ -122,34 +117,6 @@ namespace MilestoneTracker.Pages
             return accessToken == null ? null : this.workEstimatorFactory.Create(accessToken, await this.GetCurrentTeamAsync(cancellationToken));
         }
 
-        private async Task<string> GetOauthLoginUrlAsync(CancellationToken cancellationToken)
-        {
-            string csrf = GenerateRandomString(24);
-            TempData[AuthStateKey] = csrf;
-
-            // 1. Redirect users to request GitHub access
-            var request = new OauthLoginRequest(this.authOptions.ClientId)
-            {
-                Scopes = { "user", "notifications" },
-                State = csrf,
-            };
-            GitHubClient client = await this.GetClientAsync(cancellationToken);
-            var oauthLoginUrl = client.Oauth.GetGitHubLoginUrl(request);
-            return oauthLoginUrl.ToString();
-        }
-
-        private static string GenerateRandomString(int length)
-        {
-            var passChars = new char[length];
-            var characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
-            for (int i = 0; i < length; i++)
-            {
-                passChars[i] = characters[random.Next(0, characters.Length - 1)];
-            }
-
-            return new string(passChars);
-        }
-
         private async Task<TeamInfo> GetCurrentTeamAsync(CancellationToken token)
         {
             if (this.currentTeam == null)
@@ -160,12 +127,6 @@ namespace MilestoneTracker.Pages
             }
 
             return this.currentTeam;
-        }
-
-        private async Task<GitHubClient> GetClientAsync(CancellationToken cancellationToken)
-        {
-            TeamInfo currentTeam = await this.GetCurrentTeamAsync(cancellationToken);
-            return new GitHubClient(new ProductHeaderValue(currentTeam.Organization), new Uri("https://github.com/"));
         }
     }
 }
