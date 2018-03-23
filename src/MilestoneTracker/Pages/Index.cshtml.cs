@@ -80,22 +80,26 @@ namespace MilestoneTracker.Pages
             {
                 TeamInfo currentTeam = await this.GetCurrentTeamAsync(cancellationToken);
                 this.Work.TeamName = currentTeam.Name;
-                foreach (var member in currentTeam.TeamMembers)
-                {
-                    foreach (var milestone in this.Milestones)
-                    {
-                        tasks.Add(Task.Run(async () =>
-                        {
-                            if (!tokenSource.IsCancellationRequested)
-                            {
-                                this.Work[member, milestone] = await workEstimator.GetAmountOfWorkAsync(member, milestone, tokenSource.Token);
-                            }
-                        }));
-                    }
-                }
 
-                await Task.WhenAll(tasks);
+                foreach (var milestone in this.Milestones)
+                {
+                    tasks.Add(Task.Run(async () =>
+                    {
+                        IEnumerable<WorkItem> issues = await workEstimator.GetAmountOfWorkAsync(currentTeam, milestone, cancellationToken);
+                        foreach (var member in currentTeam.TeamMembers)
+                        {
+                            if (tokenSource.IsCancellationRequested)
+                            {
+                                break;
+                            }
+
+                            this.Work[member, milestone] = issues.Where(item => item.Owner == member).Sum(item => item.Cost);
+                        }
+                    }));
+                }
             }
+
+            await Task.WhenAll(tasks);
         }
 
         private async Task<IWorkEstimator> GetWorkEstimatorAsync(CancellationToken cancellationToken)
