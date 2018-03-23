@@ -11,5 +11,7 @@
         public CostMarker[] CostLabels { get; set; }
 
         public string DefaultMilestonesToTrack { get; set; }
+
+        public string[] Repositories { get; set; }
     }
 }

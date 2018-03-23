@@ -45,7 +45,6 @@ namespace MilestoneTracker.Pages
         {
             this.workEstimatorFactory = workEstimatorFactory.Ensure(nameof(workEstimatorFactory)).IsNotNull().Value;
             this.userTeamsManager = userTeamsManager.Ensure(nameof(userTeamsManager)).IsNotNull().Value;
-
             this.teamsManager = teamsManager.Ensure(nameof(teamsManager)).IsNotNull().Value;
 
             this.lazyMilestonesLoader = new Lazy<IEnumerable<string>>(() => this.Milestone?
@@ -101,8 +100,7 @@ namespace MilestoneTracker.Pages
 
         private async Task<IWorkEstimator> GetWorkEstimatorAsync(CancellationToken cancellationToken)
         {
-            //var accessToken = TempData.Peek(AuthTokenKey) as string;
-            string accessToken = await HttpContext.GetTokenAsync("access_token");
+            string accessToken = await this.HttpContext.GetTokenAsync("access_token");
 
             // This allows the client to make requests to the GitHub API on behalf of the user
             // without ever having the user's OAuth credentials.

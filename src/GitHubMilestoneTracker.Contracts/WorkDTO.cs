@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MilestoneTracker.Model
+namespace MilestoneTracker.Contracts
 {
     public class WorkDTO
     {
