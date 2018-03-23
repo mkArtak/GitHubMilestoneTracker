@@ -83,6 +83,7 @@ namespace MilestoneTracker.Pages
             using (CancellationTokenSource tokenSource = new CancellationTokenSource())
             {
                 TeamInfo currentTeam = await this.GetCurrentTeamAsync(cancellationToken);
+                this.Work.TeamName = currentTeam.Name;
                 foreach (var member in currentTeam.TeamMembers)
                 {
                     foreach (var milestone in this.Milestones)

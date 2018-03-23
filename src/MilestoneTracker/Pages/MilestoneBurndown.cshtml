@@ -9,7 +9,7 @@
         font-weight: bolder;
     }
 </style>
-<h2><span class="milestone-name">@Model.Milestone</span> Burndown</h2>
-for <h3>@Model.TeamName</h3>
+<h2><span class="milestone-name">@Model.Milestone</span> Burndown for</h2>
+<h3>@Model.TeamName</h3>
 
-@Html.RenderPartialAsync("BurndownChart", Model.BurndownModel)
+@Html.Partial("BurndownChart", Model.BurndownModel)
