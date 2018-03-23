@@ -87,6 +87,12 @@ namespace GitHub.Client
                 currentDate = currentDate.AddDays(1);
             } while (currentDate < DateTimeOffset.UtcNow.Date);
 
+            result.Add(new WorkDTO
+            {
+                Date = currentDate,
+                DaysOfWorkLeft = workLeft,
+            });
+
             return result;
         }
 
