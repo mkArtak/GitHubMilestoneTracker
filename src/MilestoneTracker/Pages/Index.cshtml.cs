@@ -4,10 +4,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Options;
 using MilestoneTracker.Contracts;
 using MilestoneTracker.Model;
-using MilestoneTracker.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,14 +56,7 @@ namespace MilestoneTracker.Pages
             {
                 IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(CancellationToken.None);
 
-                try
-                {
-                    await this.RetrieveWorkloadAsync(workEstimator, CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    ;
-                }
+                await this.RetrieveWorkloadAsync(workEstimator, CancellationToken.None);
             }
 
             return Page();
@@ -80,6 +71,7 @@ namespace MilestoneTracker.Pages
             {
                 TeamInfo currentTeam = await this.GetCurrentTeamAsync(cancellationToken);
                 this.Work.TeamName = currentTeam.Name;
+                object syncRoot = new object();
 
                 foreach (var milestone in this.Milestones)
                 {
@@ -93,7 +85,10 @@ namespace MilestoneTracker.Pages
                                 break;
                             }
 
-                            this.Work[member, milestone] = issues.Where(item => item.Owner == member).Sum(item => item.Cost);
+                            lock (syncRoot)
+                            {
+                                this.Work[member, milestone] = issues.Where(item => item.Owner == member).Sum(item => item.Cost);
+                            }
                         }
                     }));
                 }

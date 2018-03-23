@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,16 +7,14 @@ namespace MilestoneTracker.Model
     public class WorkDataViewModel
     {
         private string[] _milestones;
-
         private string[] _members;
 
         private readonly Lazy<double> totalWorkAmountCache;
         private readonly Lazy<string[]> membersWithMaxAmountOfWorkCache;
         private readonly Lazy<string[]> membersWithMinAmountOfWorkCache;
 
-        public IDictionary<string, IDictionary<string, MemberMilestoneData>> workPerMember { get; set; } = new ConcurrentDictionary<string, IDictionary<string, MemberMilestoneData>>();
-
-        public IDictionary<string, double> amountOfWorkPerMember = new ConcurrentDictionary<string, double>();
+        private IDictionary<string, IDictionary<string, MemberMilestoneData>> workPerMember { get; set; } = new Dictionary<string, IDictionary<string, MemberMilestoneData>>();
+        private IDictionary<string, double> amountOfWorkPerMember = new Dictionary<string, double>();
 
         public string[] Milestones { get => _milestones ?? (_milestones = this.workPerMember.Values.SelectMany(item => item.Keys).Distinct().OrderBy(item => item).ToArray()); }
 
@@ -78,34 +75,6 @@ namespace MilestoneTracker.Model
             });
         }
 
-        private void AddMemberWorkForMilestone(string member, string milestone, double amountOfWork)
-        {
-            if (!this.workPerMember.ContainsKey(member))
-            {
-                this.workPerMember[member] = new ConcurrentDictionary<string, MemberMilestoneData>();
-                this.amountOfWorkPerMember.Add(member, 0);
-            }
-
-            if (!this.workPerMember[member].ContainsKey(milestone))
-            {
-                this.workPerMember[member][milestone] = new MemberMilestoneData
-                {
-                    MemberName = member,
-                    Milestone = milestone,
-                    AmountOfWork = 0
-                };
-            }
-            try
-            {
-                this.workPerMember[member][milestone].AmountOfWork += amountOfWork;
-                this.amountOfWorkPerMember[member] += amountOfWork;
-            }
-            catch (KeyNotFoundException kex)
-            {
-                ;
-            }
-        }
-
         public string GetClassForMemberCell(string member)
         {
             if (this.MembersWithMaxAmountOfWork.Contains(member))
@@ -118,6 +87,28 @@ namespace MilestoneTracker.Model
             }
 
             return string.Empty;
+        }
+
+        private void AddMemberWorkForMilestone(string member, string milestone, double amountOfWork)
+        {
+            if (!this.workPerMember.ContainsKey(member))
+            {
+                this.workPerMember[member] = new Dictionary<string, MemberMilestoneData>();
+                this.amountOfWorkPerMember.Add(member, 0);
+            }
+
+            if (!this.workPerMember[member].ContainsKey(milestone))
+            {
+                this.workPerMember[member][milestone] = new MemberMilestoneData
+                {
+                    MemberName = member,
+                    Milestone = milestone,
+                    AmountOfWork = 0
+                };
+            }
+
+            this.workPerMember[member][milestone].AmountOfWork += amountOfWork;
+            this.amountOfWorkPerMember[member] += amountOfWork;
         }
     }
 }
