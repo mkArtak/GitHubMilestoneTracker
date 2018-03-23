@@ -21,11 +21,10 @@
 
     function LoadData() {
         $.ajax({
-            url: '@Url.Action("GetBurndownDataAsync", "Burndown", new { teamName= Model.TeamName })',
-            type: 'POST',
+            url: '@Url.Action("GetBurndownDataAsync", "Burndown", new { teamName= Model.TeamName, milestone=Model.Milestone })',
+            type: 'GET',
             dataType: 'json',
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify([@Html.Raw(String.Join(",", Model.Milestones.Select(item=>$"'{item}'")))]),
+            //contentType: "application/json; charset=utf-8",
             success: function (data, err) {
                 PopulationChart(data);
                 return false;

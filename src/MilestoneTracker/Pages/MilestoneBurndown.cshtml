@@ -1,0 +1,15 @@
+﻿@page
+@model MilestoneTracker.Pages.MilestoneBurndownModel
+@{
+    ViewData["Title"] = "MilestoneBurndown";
+}
+
+<style type="text/css">
+    .milestone-name {
+        font-weight: bolder;
+    }
+</style>
+<h2><span class="milestone-name">@Model.Milestone</span> Burndown</h2>
+for <h3>@Model.TeamName</h3>
+
+@Html.RenderPartialAsync("BurndownChart", Model.BurndownModel)

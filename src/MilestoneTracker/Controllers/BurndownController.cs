@@ -10,15 +10,14 @@ namespace MilestoneTracker.Controllers
     [Route("api/Burndown")]
     public class BurndownController : Controller
     {
-        [HttpPost]
-        public async Task<IActionResult> GetBurndownDataAsync([FromQuery]string teamName, [FromBody]IEnumerable<string> milestones)
+        [HttpGet]
+        public async Task<IActionResult> GetBurndownDataAsync([FromQuery]string teamName, [FromQuery]string milestone)
         {
             if (!ModelState.IsValid)
             {
                 throw new InvalidOperationException(ModelState.Values.First().Errors.First().ErrorMessage);
             }
 
-            string milestone = milestones.FirstOrDefault();
             WorkDTO[] burnDownDatas = new[] {
                 new WorkDTO { Date = new DateTime(2018, 01, 01), Milestone = milestone, DaysOfWorkLeft = 10 },
                 new WorkDTO { Date = new DateTime(2018, 01, 02), Milestone = milestone, DaysOfWorkLeft = 9 },
