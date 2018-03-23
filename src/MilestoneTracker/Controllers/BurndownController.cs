@@ -34,9 +34,6 @@ namespace MilestoneTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBurndownDataAsync([FromQuery]string teamName, [FromQuery]string milestone)
         {
-            ///TODO: Remove this as it's a workaroudn of a problem
-            ///
-            milestone = "2.1.0-preview2";
             if (!ModelState.IsValid)
             {
                 throw new InvalidOperationException(ModelState.Values.First().Errors.First().ErrorMessage);

@@ -73,7 +73,9 @@ namespace GitHub.Client
             double workLeft = totalAmountOfWork;
             do
             {
-                double amountOfWorkClosedOnDate = teamIssues.Where(item => item.ClosedAt.HasValue && item.ClosedAt.Value.Date == currentDate).Sum(item => GetIssueCost(item));
+                double amountOfWorkClosedOnDate = teamIssues
+                    .Where(item => item.ClosedAt.HasValue && item.ClosedAt.Value.Date == currentDate)
+                    .Sum(item => GetIssueCost(item));
                 if (amountOfWorkClosedOnDate > 0)
                 {
                     result.Add(new WorkDTO
