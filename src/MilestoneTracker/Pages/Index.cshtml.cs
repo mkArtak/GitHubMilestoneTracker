@@ -25,7 +25,6 @@ namespace MilestoneTracker.Pages
         private const string AuthStateKey = "CSRF:State";
         private const string AuthTokenKey = "OAuthToken";
 
-        private readonly GitHubAuthOptions authOptions;
         private readonly WorkEstimatorFactory workEstimatorFactory;
         private readonly Lazy<IEnumerable<string>> lazyMilestonesLoader;
         private readonly ITeamsManager teamsManager;
@@ -42,10 +41,8 @@ namespace MilestoneTracker.Pages
         public IndexModel(
             WorkEstimatorFactory workEstimatorFactory,
             ITeamsManager teamsManager,
-            IUserTeamsManager userTeamsManager,
-            IOptions<GitHubAuthOptions> authOptions)
+            IUserTeamsManager userTeamsManager)
         {
-            this.authOptions = authOptions.Ensure(o => o.Value).IsNotNull().Value;
             this.workEstimatorFactory = workEstimatorFactory.Ensure(nameof(workEstimatorFactory)).IsNotNull().Value;
             this.userTeamsManager = userTeamsManager.Ensure(nameof(userTeamsManager)).IsNotNull().Value;
 
