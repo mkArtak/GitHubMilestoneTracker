@@ -22,7 +22,7 @@ namespace GitHub.Client
             this.options = options.Ensure(nameof(options)).IsNotNull().Value;
         }
 
-        public async Task<double> GetAmountOfWorkAsync(string assignee, string milestone, CancellationToken cancellationToken)
+        public async Task<IEnumerable<WorkItem>> GetAmountOfWorkAsync(TeamInfo team, string milestone, CancellationToken cancellationToken)
         {
             milestone.Ensure(nameof(milestone)).IsNotNullOrWhitespace();
 
@@ -31,13 +31,16 @@ namespace GitHub.Client
                 Is = new[] { IssueIsQualifier.Issue, IssueIsQualifier.Open },
             };
 
-            if (assignee != null)
+            IList<Issue> searchResults = await this.RetrieveAllResultsAsync(
+                request,
+                issue => issue.Assignee != null
+                    && team.TeamMembers.Contains(issue.Assignee.Login)
+                    && this.GetIssueCost(issue) != 0);
+            return searchResults.Select(item => new WorkItem
             {
-                request.Assignee = assignee;
-            }
-
-            IList<Issue> searchResults = await this.RetrieveAllResultsAsync(request, item => item.Milestone?.Title == milestone);
-            return searchResults.Sum(issue => this.GetIssueCost(issue));
+                Owner = item.Assignee.Login,
+                Cost = this.GetIssueCost(item)
+            }).ToList();
         }
 
         public async Task<IEnumerable<WorkDTO>> GetBurndownDataAsync(TeamInfo team, string milestone, CancellationToken cancellationToken)

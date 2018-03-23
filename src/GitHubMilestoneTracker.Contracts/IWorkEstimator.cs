@@ -6,7 +6,7 @@ namespace MilestoneTracker.Contracts
 {
     public interface IWorkEstimator
     {
-        Task<double> GetAmountOfWorkAsync(string assignee, string milestone, CancellationToken cancellationToken);
+        Task<IEnumerable<WorkItem>> GetAmountOfWorkAsync(TeamInfo team, string milestone, CancellationToken cancellationToken);
 
         Task<IEnumerable<WorkDTO>> GetBurndownDataAsync(TeamInfo team, string milestone, CancellationToken none);
     }
