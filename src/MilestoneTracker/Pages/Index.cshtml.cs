@@ -1,16 +1,13 @@
 ﻿using AM.Common.Validation;
 using GitHub.Client;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 using MilestoneTracker.Contracts;
 using MilestoneTracker.Model;
 using MilestoneTracker.Options;
-using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,8 +39,6 @@ namespace MilestoneTracker.Pages
 
         public WorkDataViewModel Work { get; set; }
 
-        public BurndownChartModel BurndownData { get; set; }
-
         public IndexModel(
             WorkEstimatorFactory workEstimatorFactory,
             ITeamsManager teamsManager,
@@ -70,7 +65,6 @@ namespace MilestoneTracker.Pages
                 try
                 {
                     await this.RetrieveWorkloadAsync(workEstimator, CancellationToken.None);
-                    this.BurndownData = new BurndownChartModel { Milestones = this.Milestones, TeamName = this.currentTeam.Name };
                 }
                 catch (Exception ex)
                 {
