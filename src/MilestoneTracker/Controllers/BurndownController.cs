@@ -19,12 +19,12 @@ namespace MilestoneTracker.Controllers
             }
 
             WorkDTO[] burnDownDatas = new[] {
-                new WorkDTO { Date = new DateTime(2018, 01, 01), Milestone = milestone, DaysOfWorkLeft = 10 },
-                new WorkDTO { Date = new DateTime(2018, 01, 02), Milestone = milestone, DaysOfWorkLeft = 9 },
-                new WorkDTO { Date = new DateTime(2018, 01, 03), Milestone = milestone, DaysOfWorkLeft = 10},
-                new WorkDTO { Date = new DateTime(2018, 01, 04), Milestone = milestone, DaysOfWorkLeft = 8 },
-                new WorkDTO { Date = new DateTime(2018, 01, 06), Milestone = milestone, DaysOfWorkLeft = 7},
-                new WorkDTO { Date = new DateTime(2018, 01, 08), Milestone = milestone, DaysOfWorkLeft = 5 }};
+                new WorkDTO { Date = new DateTime(2018, 01, 01), DaysOfWorkLeft = 10 },
+                new WorkDTO { Date = new DateTime(2018, 01, 02), DaysOfWorkLeft = 9 },
+                new WorkDTO { Date = new DateTime(2018, 01, 03), DaysOfWorkLeft = 10},
+                new WorkDTO { Date = new DateTime(2018, 01, 04), DaysOfWorkLeft = 8 },
+                new WorkDTO { Date = new DateTime(2018, 01, 06), DaysOfWorkLeft = 7},
+                new WorkDTO { Date = new DateTime(2018, 01, 08), DaysOfWorkLeft = 5 }};
             await Task.CompletedTask;
             return new JsonResult(burnDownDatas);
         }
