@@ -28,7 +28,7 @@ namespace GitHub.Client
 
             SearchIssuesRequest request = new SearchIssuesRequest($"{MilestoneParameterName}:{milestone}")
             {
-                Is = new[] { IssueIsQualifier.Open },
+                Is = new[] { IssueIsQualifier.Issue, IssueIsQualifier.Open },
             };
 
             if (assignee != null)
@@ -36,8 +36,8 @@ namespace GitHub.Client
                 request.Assignee = assignee;
             }
 
-            SearchIssuesResult result = await this.client.Search.SearchIssues(request);
-            return result.Items.Where(item => item.Milestone?.Title == milestone).Sum(issue => this.GetIssueCost(issue));
+            IList<Issue> searchResults = await this.RetrieveAllResultsAsync(request, item => item.Milestone?.Title == milestone);
+            return searchResults.Sum(issue => this.GetIssueCost(issue));
         }
 
         public async Task<IEnumerable<WorkDTO>> GetBurndownDataAsync(TeamInfo team, string milestone, CancellationToken cancellationToken)
@@ -52,12 +52,20 @@ namespace GitHub.Client
                 request.Repos.Add(repo);
             }
 
-            SearchIssuesResult searchResult = await this.client.Search.SearchIssues(request);
-            var teamIssues = searchResult.Items.Where(item => item.Assignee != null && team.TeamMembers.Contains(item.Assignee.Login)).ToList();
+            IList<Issue> teamIssues = await this.RetrieveAllResultsAsync(
+                request,
+                issue => issue.Assignee != null
+                    && team.TeamMembers.Contains(issue.Assignee.Login)
+                    && this.GetIssueCost(issue) != 0);
+
             double totalAmountOfWork = teamIssues.Sum(item => this.GetIssueCost(item));
-            IDictionary<DateTimeOffset, WorkDTO> daysMap = new Dictionary<DateTimeOffset, WorkDTO>();
-            DateTimeOffset firstClosedDate = teamIssues.Select(item => item.ClosedAt).Where(item => item.HasValue).OrderBy(d => d).FirstOrDefault() ?? DateTimeOffset.Now.AddDays(-30);
+            DateTimeOffset firstClosedDate = teamIssues
+                .Select(item => item.ClosedAt)
+                .Where(item => item.HasValue)
+                .OrderBy(d => d)
+                .FirstOrDefault() ?? DateTimeOffset.Now.AddDays(-30);
             DateTime currentDate = firstClosedDate.Date;
+
             IList<WorkDTO> result = new List<WorkDTO>();
             double workLeft = totalAmountOfWork;
             do
@@ -71,6 +79,7 @@ namespace GitHub.Client
                         DaysOfWorkLeft = workLeft,
                     });
                 }
+
                 workLeft -= amountOfWorkClosedOnDate;
                 currentDate = currentDate.AddDays(1);
             } while (currentDate < DateTimeOffset.UtcNow.Date);
@@ -78,15 +87,22 @@ namespace GitHub.Client
             return result;
         }
 
-        private double GetWorkDaysForCostLabels(IDictionary<string, int> map, string costLabelName, double daysFactor)
+        private async Task<List<Issue>> RetrieveAllResultsAsync(SearchIssuesRequest request, Func<Issue, bool> filter)
         {
-            double result = 0;
-            if (map.TryGetValue(costLabelName, out int numberOfItems))
+            List<Issue> retrievedIssues = new List<Issue>();
+            do
             {
-                result = numberOfItems * daysFactor;
-            }
+                SearchIssuesResult searchResult = await this.client.Search.SearchIssues(request);
+                retrievedIssues.AddRange(searchResult.Items.Where(filter));
+                if (!searchResult.IncompleteResults)
+                {
+                    break;
+                }
 
-            return result;
+                request.Page++;
+            } while (true);
+
+            return retrievedIssues;
         }
 
         private double GetIssueCost(Issue issue)
