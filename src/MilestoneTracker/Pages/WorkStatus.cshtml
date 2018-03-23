@@ -77,7 +77,17 @@
             <td class="row-bottom-item row-first-item">Total work left</td>
             @foreach (var milestone in Model.Milestones)
             {
-                <td class="row-bottom-item row-item">@sumByMilestone[milestone]</td>
+                var parms = new Dictionary<string, string>
+                {
+                    { "milestone", milestone },
+                    { "teamName", Model.TeamName }
+                };
+
+                <td class="row-bottom-item row-item">
+                    <a asp-page="MilestoneBurndown" asp-all-route-data="parms">
+                        @sumByMilestone[milestone]
+                    </a>
+                </td>
             }
 
             <td class="row-bottom-item row-last-item">@Model.TotalAmountOfWork</td>
