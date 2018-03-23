@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -31,8 +31,20 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><a asp-page="/Index">Home</a></li>
-                    <li><a asp-page="/About">About</a></li>
-                    <li><a asp-page="/Contact">Contact</a></li>
+                    @*<li><a asp-page="/About">About</a></li>
+                        <li><a asp-page="/Contact">Contact</a></li>*@
+
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li><a asp-controller="Home" asp-action="UserProfile">Hello @User.Identity.Name!</a></li>
+                        <li><a href="~/signout">Logout</a></li>
+                    }
+                    else
+                    {
+                        <li><a href="~/signin">Login</a></li>
+                    }
                 </ul>
             </div>
         </div>
@@ -41,7 +53,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; 2017 - MilestoneTracker</p>
+            <p>&copy; 2018 - MilestoneTracker</p>
         </footer>
     </div>
 

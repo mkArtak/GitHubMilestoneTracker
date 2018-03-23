@@ -6,22 +6,18 @@ namespace GitHub.Client
 {
     public class WorkEstimatorFactory
     {
-        private readonly TeamInfo options;
-        private readonly GitHubClient client;
-
-        public WorkEstimatorFactory(TeamInfo options)
+        public WorkEstimatorFactory()
         {
-            options.Ensure(nameof(options)).IsNotNull();
-
-            this.options = options;
-            this.client = new GitHubClient(new ProductHeaderValue(this.options.Organization));
         }
 
-        public IWorkEstimator Create(string accessToken)
+        public IWorkEstimator Create(string accessToken, TeamInfo teamInfo)
         {
-            this.client.Credentials = new Credentials(accessToken);
+            teamInfo.Ensure().IsNotNull();
 
-            return new GitHubWorkEstimator(this.client, this.options);
+            GitHubClient client = new GitHubClient(new ProductHeaderValue(teamInfo.Organization));
+            client.Credentials = new Credentials(accessToken);
+
+            return new GitHubWorkEstimator(client, teamInfo);
         }
     }
 }
