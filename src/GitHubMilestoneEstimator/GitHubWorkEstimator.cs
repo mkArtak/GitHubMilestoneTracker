@@ -26,7 +26,7 @@ namespace GitHub.Client
         {
             milestone.Ensure(nameof(milestone)).IsNotNullOrWhitespace();
 
-            SearchIssuesRequest request = new SearchIssuesRequest($"{MilestoneParameterName}:{milestone}")
+            SearchIssuesRequest request = new SearchIssuesRequest($"{MilestoneParameterName}:\"{milestone}\"")
             {
                 Is = new[] { IssueIsQualifier.Issue, IssueIsQualifier.Open },
             };
@@ -45,7 +45,7 @@ namespace GitHub.Client
 
         public async Task<IEnumerable<WorkDTO>> GetBurndownDataAsync(TeamInfo team, string milestone, CancellationToken cancellationToken)
         {
-            SearchIssuesRequest request = new SearchIssuesRequest($"{MilestoneParameterName}:{milestone}")
+            SearchIssuesRequest request = new SearchIssuesRequest($"{MilestoneParameterName}:\"{milestone}\"")
             {
                 Is = new[] { IssueIsQualifier.Issue }
             };
