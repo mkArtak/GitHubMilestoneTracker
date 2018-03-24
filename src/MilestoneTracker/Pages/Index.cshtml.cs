@@ -54,7 +54,12 @@ namespace MilestoneTracker.Pages
         {
             if (this.Milestones != null)
             {
-                IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(CancellationToken.None);
+                TeamInfo team = await this.GetCurrentTeamAsync(CancellationToken.None);
+                if (team == null)
+                {
+                    return Redirect("/Teams");
+                }
+                IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(team, CancellationToken.None);
 
                 await this.RetrieveWorkloadAsync(workEstimator, CancellationToken.None);
             }
@@ -97,13 +102,13 @@ namespace MilestoneTracker.Pages
             await Task.WhenAll(tasks);
         }
 
-        private async Task<IWorkEstimator> GetWorkEstimatorAsync(CancellationToken cancellationToken)
+        private async Task<IWorkEstimator> GetWorkEstimatorAsync(TeamInfo team, CancellationToken cancellationToken)
         {
             string accessToken = await this.HttpContext.GetTokenAsync("access_token");
 
             // This allows the client to make requests to the GitHub API on behalf of the user
             // without ever having the user's OAuth credentials.
-            return accessToken == null ? null : this.workEstimatorFactory.Create(accessToken, await this.GetCurrentTeamAsync(cancellationToken));
+            return this.workEstimatorFactory.Create(accessToken, team);
         }
 
         private async Task<TeamInfo> GetCurrentTeamAsync(CancellationToken token)
@@ -112,7 +117,10 @@ namespace MilestoneTracker.Pages
             {
                 // TODO: Fix: Using only the first team for now for simplicity
                 IEnumerable<string> teams = await this.userTeamsManager.GetUserTeamsAsync(User.Identity.Name, CancellationToken.None);
-                this.currentTeam = await this.teamsManager.GetTeamInfoAsync(teams.First(), token);
+                if (teams != null)
+                {
+                    this.currentTeam = await this.teamsManager.GetTeamInfoAsync(teams.First(), token);
+                }
             }
 
             return this.currentTeam;

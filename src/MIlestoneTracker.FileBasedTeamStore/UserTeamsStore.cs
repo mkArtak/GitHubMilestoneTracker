@@ -30,7 +30,13 @@ namespace MilestoneTracker.DataManagement.Teams
 
         public Task<IEnumerable<string>> GetUserTeamsAsync(string userName, CancellationToken token)
         {
-            return Task.FromResult<IEnumerable<string>>(this.Mappings[userName]);
+            IEnumerable<string> teamNames;
+            if (!this.Mappings.TryGetValue(userName, out teamNames))
+            {
+                teamNames = null;
+            }
+
+            return Task.FromResult<IEnumerable<string>>(teamNames);
         }
     }
 }
