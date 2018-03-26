@@ -7,6 +7,8 @@ namespace MT.DataManagement.Teams.AzureSql
     {
         public DbSet<Team> Teams { get; set; }
 
+        public DbSet<Member> Members { get; set; }
+
         public MilestoneAnalyticsDataContext(DbContextOptions<MilestoneAnalyticsDataContext> options) : base(options)
         {
         }
