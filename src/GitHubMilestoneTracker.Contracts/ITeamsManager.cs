@@ -24,9 +24,10 @@ namespace MilestoneTracker.Contracts
         /// <summary>
         /// Registeres data of a new team.
         /// </summary>
+        /// <param name="ownerLogin">The login of the owner member</param>
         /// <param name="info">The team data.</param>
         /// <param name="continuationToken">An optional continuation token to retrieve next set of the results from the previous query.</param>
         /// <returns>A Task instance representing the requested asynchronous operation.</returns>
-        Task AddTeamAsync(TeamInfo info, CancellationToken cancellationToken);
+        Task AddTeamAsync(string ownerLogin, TeamInfo info, CancellationToken cancellationToken);
     }
 }
