@@ -5,7 +5,7 @@ using MilestoneTracker.Contracts;
 
 namespace MT.DataManagement.Teams.AzureSql.DependencyInjection
 {
-    public static class ApplicationBuilderExtensions
+    public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddTeams(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
