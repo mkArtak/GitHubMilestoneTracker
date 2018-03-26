@@ -2,10 +2,12 @@ using GitHub.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MilestoneTracker.DataManagement.Teams;
 using MilestoneTracker.Options;
+using MT.DataManagement.Teams.AzureSql;
 
 namespace MilestoneTracker
 {

@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MilestoneTracker.Contracts"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MilestoneTracker.DataManagement.Teams", "src\MIlestoneTracker.FileBasedTeamStore\MilestoneTracker.DataManagement.Teams.csproj", "{24913B96-BA51-4777-9963-77082447F083}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MT.DataManagement.Teams.AzureSql", "src\MT.DataManagement.Teams.AzureSql\MT.DataManagement.Teams.AzureSql.csproj", "{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{24913B96-BA51-4777-9963-77082447F083}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24913B96-BA51-4777-9963-77082447F083}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24913B96-BA51-4777-9963-77082447F083}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,6 +55,7 @@ Global
 		{AE569D9B-095C-4329-876E-4C3926D4A6F1} = {A30E7D8F-AF6D-4140-9E12-C9F7DED9FBF8}
 		{08BCAC7D-17EE-47B2-A50F-B1175A0F54B7} = {A30E7D8F-AF6D-4140-9E12-C9F7DED9FBF8}
 		{24913B96-BA51-4777-9963-77082447F083} = {A30E7D8F-AF6D-4140-9E12-C9F7DED9FBF8}
+		{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B} = {A30E7D8F-AF6D-4140-9E12-C9F7DED9FBF8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76A04873-24F9-4796-A1AB-FB687405C851}
