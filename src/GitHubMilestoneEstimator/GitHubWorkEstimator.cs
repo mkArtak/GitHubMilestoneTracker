@@ -50,10 +50,10 @@ namespace GitHub.Client
                 Is = new[] { IssueIsQualifier.Issue }
             };
 
-            foreach (var repo in team.Repositories)
-            {
-                request.Repos.Add(repo);
-            }
+            //foreach (var repo in team.Repositories)
+            //{
+            //    request.Repos.Add(repo);
+            //}
 
             IList<Issue> teamIssues = await this.RetrieveAllResultsAsync(
                 request,
@@ -63,8 +63,8 @@ namespace GitHub.Client
 
             double totalAmountOfWork = teamIssues.Sum(item => this.GetIssueCost(item));
             DateTimeOffset firstClosedDate = teamIssues
+                .Where(item => item.State.Value == ItemState.Closed)
                 .Select(item => item.ClosedAt)
-                .Where(item => item.HasValue)
                 .OrderBy(d => d)
                 .FirstOrDefault() ?? DateTimeOffset.Now.AddDays(-30);
             DateTime currentDate = firstClosedDate.Date;
@@ -74,7 +74,7 @@ namespace GitHub.Client
             do
             {
                 double amountOfWorkClosedOnDate = teamIssues
-                    .Where(item => item.ClosedAt.HasValue && item.ClosedAt.Value.Date == currentDate)
+                    .Where(item => item.State.Value == ItemState.Closed && item.ClosedAt.HasValue && item.ClosedAt.Value.Date == currentDate)
                     .Sum(item => GetIssueCost(item));
                 if (amountOfWorkClosedOnDate > 0)
                 {
@@ -103,9 +103,21 @@ namespace GitHub.Client
             List<Issue> retrievedIssues = new List<Issue>();
             do
             {
-                SearchIssuesResult searchResult = await this.client.Search.SearchIssues(request);
-                retrievedIssues.AddRange(searchResult.Items.Where(filter));
-                if (!searchResult.IncompleteResults)
+                SearchIssuesResult searchResult;
+                IEnumerable<Issue> pageResults;
+                int retries = 3;
+                do
+                {
+                    searchResult = await this.client.Search.SearchIssues(request);
+                    pageResults = searchResult.Items.Where(filter);
+                    if (retries-- == 0)
+                    {
+                        throw new TimeoutException("Failed to retrieve all issues in timely manner");
+                    }
+                } while (searchResult.IncompleteResults);
+
+                retrievedIssues.AddRange(pageResults);
+                if (searchResult.Items.Count == 0)
                 {
                     break;
                 }
