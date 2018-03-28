@@ -4,8 +4,8 @@ namespace MT.DataManagement.Teams.AzureSql.Model
 {
     public class Member
     {
-        public string Login { get; set; }
+        public string MemberId { get; set; }
 
-        public IEnumerable<Team> OwnedTeams { get; set; }
+        public IEnumerable<Team> Teams { get; set; }
     }
 }

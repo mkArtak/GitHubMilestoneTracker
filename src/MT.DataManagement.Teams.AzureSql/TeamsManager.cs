@@ -27,24 +27,24 @@ namespace MT.DataManagement.Teams.AzureSql
             info.Ensure(nameof(info)).IsNotNull();
             cancellationToken.ThrowIfCancellationRequested();
 
-            Member owner = this.context.Members.Where(item => item.Login == ownerLogin).SingleOrDefault();
+            Member owner = this.context.Members.Where(item => item.MemberId == ownerLogin).SingleOrDefault();
             if (owner == null)
             {
                 owner = new Member
                 {
-                    Login = ownerLogin
+                    MemberId = ownerLogin
                 };
                 await this.context.Members.AddAsync(owner, cancellationToken);
             }
 
             Team team = new Team
             {
-                Name = info.Name,
-                Owner = owner,
+                TeamId = info.Name,
                 CostMarkers = info.CostLabels.Select(item => Convert(item)),
                 DefaultMilestonesToTrack = info.DefaultMilestonesToTrack,
                 Organization = info.Organization,
-                Repos = info.Repositories.Select(item => new Repo { Name = item })
+                Repos = info.Repositories.Select(item => new Repo { RepoId = item }),
+                Members = info.TeamMembers?.Select(item => new Member { MemberId = item })
             };
             await this.context.Teams.AddAsync(team, cancellationToken);
 
@@ -65,10 +65,10 @@ namespace MT.DataManagement.Teams.AzureSql
                 {
                     CostLabels = team.CostMarkers.Select(item => Convert(item)).ToArray(),
                     DefaultMilestonesToTrack = team.DefaultMilestonesToTrack,
-                    Name = team.Name,
+                    Name = team.TeamId,
                     Organization = team.Organization,
-                    Repositories = team.Repos.Select(item => item.Name).ToArray(),
-                    TeamMembers = team.Members.Select(item => item.Login).ToArray()
+                    Repositories = team.Repos.Select(item => item.RepoId).ToArray(),
+                    TeamMembers = team.Members.Select(item => item.MemberId).ToArray()
                 };
             };
 
@@ -83,19 +83,19 @@ namespace MT.DataManagement.Teams.AzureSql
         public async Task<IEnumerable<string>> GetUserTeamsAsync(string userName, CancellationToken token)
         {
             await Task.CompletedTask;
-            return this.context.Teams.Where(item => item.Owner.Login == userName).Select(item => item.Name);
+            return this.context.Members.Where(item => item.MemberId == userName).SelectMany(item => item.Teams).Select(item => item.TeamId);
         }
 
         private static MilestoneTracker.Contracts.CostMarker Convert(Model.CostMarker value) => new MilestoneTracker.Contracts.CostMarker
         {
             Factor = value.Factor,
-            Name = value.Name
+            Name = value.CostMarkerId
         };
 
         private Model.CostMarker Convert(MilestoneTracker.Contracts.CostMarker item) => new Model.CostMarker
         {
             Factor = item.Factor,
-            Name = item.Name
+            CostMarkerId = item.Name
         };
     }
 }

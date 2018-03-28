@@ -4,9 +4,7 @@ namespace MT.DataManagement.Teams.AzureSql.Model
 {
     public class Team
     {
-        public string Name { get; set; }
-
-        public Member Owner { get; set; }
+        public string TeamId { get; set; }
 
         public string DefaultMilestonesToTrack { get; set; }
 
@@ -17,6 +15,5 @@ namespace MT.DataManagement.Teams.AzureSql.Model
         public IEnumerable<Repo> Repos { get; set; }
 
         public IEnumerable<CostMarker> CostMarkers { get; set; }
-
     }
 }

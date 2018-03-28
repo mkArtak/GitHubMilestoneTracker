@@ -119,7 +119,11 @@ namespace MilestoneTracker.Pages
                 IEnumerable<string> teams = await this.userTeamsManager.GetUserTeamsAsync(User.Identity.Name, CancellationToken.None);
                 if (teams != null)
                 {
-                    this.currentTeam = await this.teamsManager.GetTeamInfoAsync(teams.First(), token);
+                    string firstTeamName = teams.FirstOrDefault();
+                    if (firstTeamName != null)
+                    {
+                        this.currentTeam = await this.teamsManager.GetTeamInfoAsync(firstTeamName, token);
+                    }
                 }
             }
 

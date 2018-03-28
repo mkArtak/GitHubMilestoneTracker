@@ -11,6 +11,7 @@ namespace MT.DataManagement.Teams.AzureSql.DependencyInjection
         {
             serviceCollection.AddDbContext<MilestoneAnalyticsDataContext>(options => options.UseSqlServer(configuration.GetConnectionString("teamsDbConnection")));
             serviceCollection.AddScoped<ITeamsManager, TeamsManager>();
+            serviceCollection.AddScoped<IUserTeamsManager, TeamsManager>();
 
             return serviceCollection;
         }

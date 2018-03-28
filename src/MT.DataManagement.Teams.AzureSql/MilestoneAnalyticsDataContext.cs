@@ -12,5 +12,26 @@ namespace MT.DataManagement.Teams.AzureSql
         public MilestoneAnalyticsDataContext(DbContextOptions<MilestoneAnalyticsDataContext> options) : base(options)
         {
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Team>()
+                .Property(t => t.TeamId)
+                .IsRequired();
+
+            modelBuilder.Entity<Team>()
+                .HasKey(t => t.TeamId);
+
+            modelBuilder.Entity<Team>()
+                .HasMany(t => t.Members);
+
+            modelBuilder.Entity<Team>()
+                .HasMany(t => t.CostMarkers);
+
+            modelBuilder.Entity<Member>()
+                .HasMany(m => m.Teams);
+        }
     }
 }

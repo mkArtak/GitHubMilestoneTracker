@@ -5,9 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MilestoneTracker.DataManagement.Teams;
 using MilestoneTracker.Options;
-using MT.DataManagement.Teams.AzureSql;
+using MT.DataManagement.Teams.AzureSql.DependencyInjection;
 
 namespace MilestoneTracker
 {
@@ -27,9 +26,10 @@ namespace MilestoneTracker
 
             services.AddOptions();
             services.Configure<GitHubAuthOptions>(this.Configuration.GetSection("GitHubAuth"));
-            services.AddTeams(this.Configuration);
-            services.AddUserTeams(this.Configuration);
+            //services.AddTeams(this.Configuration);
+            //services.AddUserTeams(this.Configuration);
 
+            services.AddTeams(this.Configuration);
             services.AddSingleton<WorkEstimatorFactory>();
             services.AddAuthentication(options =>
             {
