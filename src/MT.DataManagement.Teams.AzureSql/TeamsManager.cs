@@ -51,28 +51,28 @@ namespace MT.DataManagement.Teams.AzureSql
             // TODO: Add team members here
         }
 
-        public async Task<TeamInfo> GetTeamInfoAsync(string teamName, CancellationToken cancellationToken)
+        public Task<TeamInfo> GetTeamInfoAsync(string teamName, CancellationToken cancellationToken)
         {
             teamName.Ensure(nameof(teamName)).IsNotNullOrWhitespace();
             cancellationToken.ThrowIfCancellationRequested();
 
             TeamInfo result = null;
 
-            var team = await this.context.Teams.FindAsync(teamName, cancellationToken);
+            var team = this.context.Teams.Where(item => item.TeamId == teamName).SingleOrDefault();
             if (team != null)
             {
                 result = new TeamInfo
                 {
-                    CostLabels = team.CostMarkers.Select(item => Convert(item)).ToArray(),
+                    CostLabels = team.CostMarkers?.Select(item => Convert(item)).ToArray(),
                     DefaultMilestonesToTrack = team.DefaultMilestonesToTrack,
                     Name = team.TeamId,
                     Organization = team.Organization,
-                    Repositories = team.Repos.Select(item => item.RepoId).ToArray(),
-                    TeamMembers = team.Members.Select(item => item.MemberId).ToArray()
+                    Repositories = team.Repos?.Select(item => item.RepoId).ToArray(),
+                    TeamMembers = team.Members?.Select(item => item.MemberId).ToArray()
                 };
             };
 
-            return result;
+            return Task.FromResult(result);
         }
 
         public Task<PagedDataResponse<TeamInfo>> GetTeamsAsync(int count, CancellationToken cancellationToken, string continuationToken)
