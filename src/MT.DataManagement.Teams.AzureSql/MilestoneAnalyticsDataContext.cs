@@ -18,10 +18,6 @@ namespace MT.DataManagement.Teams.AzureSql
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Team>()
-                .Property(t => t.TeamId)
-                .IsRequired();
-
-            modelBuilder.Entity<Team>()
                 .HasKey(t => t.TeamId);
 
             modelBuilder.Entity<Team>()
@@ -29,9 +25,6 @@ namespace MT.DataManagement.Teams.AzureSql
 
             modelBuilder.Entity<Team>()
                 .HasMany(t => t.CostMarkers);
-
-            modelBuilder.Entity<Member>()
-                .HasMany(m => m.Teams);
         }
     }
 }

@@ -6,6 +6,6 @@ namespace MT.DataManagement.Teams.AzureSql.Model
     {
         public string MemberId { get; set; }
 
-        public IEnumerable<Team> Teams { get; set; }
+        //public IEnumerable<Team> Teams { get; set; }
     }
 }

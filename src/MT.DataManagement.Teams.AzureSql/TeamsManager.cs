@@ -58,17 +58,17 @@ namespace MT.DataManagement.Teams.AzureSql
 
             TeamInfo result = null;
 
-            var team = this.context.Teams.Where(item => item.TeamId == teamName).SingleOrDefault();
+            var team = this.context.Teams.Where(item => item.TeamId == teamName);
             if (team != null)
             {
                 result = new TeamInfo
                 {
-                    CostLabels = team.CostMarkers?.Select(item => Convert(item)).ToArray(),
-                    DefaultMilestonesToTrack = team.DefaultMilestonesToTrack,
-                    Name = team.TeamId,
-                    Organization = team.Organization,
-                    Repositories = team.Repos?.Select(item => item.RepoId).ToArray(),
-                    TeamMembers = team.Members?.Select(item => item.MemberId).ToArray()
+                    CostLabels = team.SelectMany(item => item.CostMarkers).Select(item => Convert(item)).ToArray(),
+                    DefaultMilestonesToTrack = team.Single().DefaultMilestonesToTrack,
+                    Name = team.Single().TeamId,
+                    Organization = team.Single().Organization,
+                    Repositories = team.SelectMany(t => t.Repos).Select(item => item.RepoId).ToArray(),
+                    TeamMembers = team.SelectMany(t => t.Members).Select(item => item.MemberId).ToArray()
                 };
             };
 
@@ -83,7 +83,7 @@ namespace MT.DataManagement.Teams.AzureSql
         public async Task<IEnumerable<string>> GetUserTeamsAsync(string userName, CancellationToken token)
         {
             await Task.CompletedTask;
-            return this.context.Members.Where(item => item.MemberId == userName).SelectMany(item => item.Teams).Select(item => item.TeamId);
+            return this.context.Teams.Where(t => t.Members.Any(item => item.MemberId == userName)).Select(t => t.TeamId);
         }
 
         private static MilestoneTracker.Contracts.CostMarker Convert(Model.CostMarker value) => new MilestoneTracker.Contracts.CostMarker
