@@ -19,18 +19,22 @@ namespace MilestoneTracker.Pages
     {
         private const char milestoneSeparatorCharacter = ';';
 
-        private static readonly Random random = new Random(DateTime.UtcNow.Millisecond);
-        private const string AuthStateKey = "CSRF:State";
-        private const string AuthTokenKey = "OAuthToken";
-
         private readonly WorkEstimatorFactory workEstimatorFactory;
         private readonly Lazy<IEnumerable<string>> lazyMilestonesLoader;
         private readonly ITeamsManager teamsManager;
         private readonly IUserTeamsManager userTeamsManager;
         private TeamInfo currentTeam = null;
+        private string milestone;
 
         [FromQuery]
-        public string Milestone { get; set; }
+        public string Milestone
+        {
+            get => this.milestone ?? this.currentTeam?.DefaultMilestonesToTrack;
+            set => this.milestone = value;
+        }
+
+        [FromQuery]
+        public string TeamName { get; set; }
 
         public IEnumerable<string> Milestones { get => this.lazyMilestonesLoader.Value; }
 
@@ -45,13 +49,26 @@ namespace MilestoneTracker.Pages
             this.userTeamsManager = userTeamsManager.Ensure(nameof(userTeamsManager)).IsNotNull().Value;
             this.teamsManager = teamsManager.Ensure(nameof(teamsManager)).IsNotNull().Value;
 
-            this.lazyMilestonesLoader = new Lazy<IEnumerable<string>>(() => this.Milestone?
-                .Split(milestoneSeparatorCharacter, StringSplitOptions.RemoveEmptyEntries)
-                .Select(item => item.Trim()));
+            this.lazyMilestonesLoader = new Lazy<IEnumerable<string>>(() =>
+            {
+                return this.Milestone?
+                    .Split(milestoneSeparatorCharacter, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(item => item.Trim());
+            });
         }
 
         public async Task<IActionResult> OnGet()
         {
+            if (this.TeamName == null)
+            {
+                return Redirect("/Teams");
+            }
+
+            if (this.Milestone == null)
+            {
+                await this.GetCurrentTeamAsync(CancellationToken.None);
+            }
+
             if (this.Milestones != null)
             {
                 TeamInfo team = await this.GetCurrentTeamAsync(CancellationToken.None);
@@ -59,6 +76,7 @@ namespace MilestoneTracker.Pages
                 {
                     return Redirect("/Teams");
                 }
+
                 IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(team, CancellationToken.None);
 
                 await this.RetrieveWorkloadAsync(workEstimator, CancellationToken.None);
@@ -83,16 +101,19 @@ namespace MilestoneTracker.Pages
                     tasks.Add(Task.Run(async () =>
                     {
                         IEnumerable<WorkItem> issues = await workEstimator.GetAmountOfWorkAsync(currentTeam, milestone, cancellationToken);
-                        foreach (var member in currentTeam.TeamMembers)
+                        if (currentTeam.TeamMembers != null)
                         {
-                            if (tokenSource.IsCancellationRequested)
+                            foreach (var member in currentTeam.TeamMembers)
                             {
-                                break;
-                            }
+                                if (tokenSource.IsCancellationRequested)
+                                {
+                                    break;
+                                }
 
-                            lock (syncRoot)
-                            {
-                                this.Work[member, milestone] = issues.Where(item => item.Owner == member).Sum(item => item.Cost);
+                                lock (syncRoot)
+                                {
+                                    this.Work[member, milestone] = issues.Where(item => item.Owner == member).Sum(item => item.Cost);
+                                }
                             }
                         }
                     }));
@@ -115,12 +136,7 @@ namespace MilestoneTracker.Pages
         {
             if (this.currentTeam == null)
             {
-                // TODO: Fix: Using only the first team for now for simplicity
-                IEnumerable<string> teams = await this.userTeamsManager.GetUserTeamsAsync(User.Identity.Name, CancellationToken.None);
-                if (teams != null)
-                {
-                    this.currentTeam = await this.teamsManager.GetTeamInfoAsync(teams.First(), token);
-                }
+                this.currentTeam = await this.userTeamsManager.GetTeamInfo(User.Identity.Name, this.TeamName, CancellationToken.None);
             }
 
             return this.currentTeam;

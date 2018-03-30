@@ -35,6 +35,7 @@
 <div class="row">
     <form method="get" class="milestone-form">
         <span class="form-input-label">Milestone:</span> @Html.EditorFor(m => m.Milestone, "Milestone", "Milestone")
+        <input type="hidden" name="teamName" value="@Model.TeamName" />
         <button type="submit" class="form-submit-button">Retrieve</button>
     </form>
 </div>

@@ -23,7 +23,7 @@ namespace MilestoneTracker.DataManagement.Teams
             this.teams = this.teamConfiguration.Teams.ToDictionary(i => i.Name);
         }
 
-        public Task AddTeamAsync(TeamInfo info, CancellationToken cancellationToken)
+        public Task AddTeamAsync(string ownerLogin, TeamInfo info, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
