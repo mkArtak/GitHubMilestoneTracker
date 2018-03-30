@@ -38,5 +38,10 @@ namespace MilestoneTracker.DataManagement.Teams
 
             return Task.FromResult<IEnumerable<string>>(teamNames);
         }
+
+        public Task<TeamInfo> GetTeamInfo(string userName, string teamName, CancellationToken token)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

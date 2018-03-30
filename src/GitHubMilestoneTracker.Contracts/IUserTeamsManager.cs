@@ -7,5 +7,7 @@ namespace MilestoneTracker.Contracts
     public interface IUserTeamsManager
     {
         Task<IEnumerable<string>> GetUserTeamsAsync(string userName, CancellationToken token);
+
+        Task<TeamInfo> GetTeamInfo(string userName, string teamName, CancellationToken token);
     }
 }

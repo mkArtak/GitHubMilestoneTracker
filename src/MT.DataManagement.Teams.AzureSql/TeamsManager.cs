@@ -18,7 +18,6 @@ namespace MT.DataManagement.Teams.AzureSql
             context.Ensure().IsNotNull();
 
             this.context = context;
-
         }
 
         public async Task AddTeamAsync(string ownerLogin, TeamInfo info, CancellationToken cancellationToken)
@@ -61,16 +60,8 @@ namespace MT.DataManagement.Teams.AzureSql
             var team = this.context.Teams.Where(item => item.TeamId == teamName);
             if (team != null)
             {
-                result = new TeamInfo
-                {
-                    CostLabels = team.SelectMany(item => item.CostMarkers).Select(item => Convert(item)).ToArray(),
-                    DefaultMilestonesToTrack = team.Single().DefaultMilestonesToTrack,
-                    Name = team.Single().TeamId,
-                    Organization = team.Single().Organization,
-                    Repositories = team.SelectMany(t => t.Repos).Select(item => item.RepoId).ToArray(),
-                    TeamMembers = team.SelectMany(t => t.Members).Select(item => item.MemberId).ToArray()
-                };
-            };
+                result = ToTeamInfo(team);
+            }
 
             return Task.FromResult(result);
         }
@@ -82,8 +73,16 @@ namespace MT.DataManagement.Teams.AzureSql
 
         public async Task<IEnumerable<string>> GetUserTeamsAsync(string userName, CancellationToken token)
         {
-            await Task.CompletedTask;
-            return this.context.Teams.Where(t => t.Members.Any(item => item.MemberId == userName)).Select(t => t.TeamId);
+            return await Task.Run(() => this.context.Teams.Where(t => t.Members.Any(item => item.MemberId == userName)).Select(t => t.TeamId));
+        }
+
+        public async Task<TeamInfo> GetTeamInfo(string userName, string teamName, CancellationToken token)
+        {
+            return await Task.Run<TeamInfo>(() =>
+            {
+                var team = this.context.Teams.Where(t => t.TeamId == teamName && t.Members.Any(m => m.MemberId == userName));
+                return ToTeamInfo(team);
+            });
         }
 
         private static MilestoneTracker.Contracts.CostMarker Convert(Model.CostMarker value) => new MilestoneTracker.Contracts.CostMarker
@@ -97,5 +96,18 @@ namespace MT.DataManagement.Teams.AzureSql
             Factor = item.Factor,
             CostMarkerId = item.Name
         };
+
+        private static TeamInfo ToTeamInfo(IQueryable<Team> team)
+        {
+            return new TeamInfo
+            {
+                CostLabels = team.SelectMany(item => item.CostMarkers).Select(item => Convert(item)).ToArray(),
+                DefaultMilestonesToTrack = team.Single().DefaultMilestonesToTrack,
+                Name = team.Single().TeamId,
+                Organization = team.Single().Organization,
+                Repositories = team.SelectMany(t => t.Repos).Select(item => item.RepoId).ToArray(),
+                TeamMembers = team.SelectMany(t => t.Members).Select(item => item.MemberId).ToArray()
+            };
+        }
     }
 }

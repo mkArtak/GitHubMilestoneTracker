@@ -1,0 +1,22 @@
+﻿@page
+@model MilestoneTracker.Pages.TeamsModel
+@{
+    ViewData["Title"] = "Teams";
+}
+
+<h2>Teams</h2>
+
+<div>Please select the team you'd like to look into</div>
+<ul>
+    @foreach (var team in Model.Teams)
+    {
+        var parms = new Dictionary<string, string>
+        {
+            { "teamName", team },
+        };
+
+        <li class="team-item">
+            <a class="team-button" asp-page-handler="Get" asp-page="Index" asp-all-route-data="parms">@team</a>
+        </li>
+    }
+</ul>
