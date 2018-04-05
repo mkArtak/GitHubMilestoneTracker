@@ -11,9 +11,10 @@ using System;
 namespace MT.DataManagement.Teams.AzureSql.Migrations
 {
     [DbContext(typeof(MilestoneAnalyticsDataContext))]
-    partial class MilestoneAnalyticsDataContextModelSnapshot : ModelSnapshot
+    [Migration("20180405064746_FixedTeamName")]
+    partial class FixedTeamName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
