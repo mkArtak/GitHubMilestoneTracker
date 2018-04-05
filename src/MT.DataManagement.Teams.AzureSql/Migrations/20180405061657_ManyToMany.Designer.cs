@@ -11,9 +11,10 @@ using System;
 namespace MT.DataManagement.Teams.AzureSql.Migrations
 {
     [DbContext(typeof(MilestoneAnalyticsDataContext))]
-    partial class MilestoneAnalyticsDataContextModelSnapshot : ModelSnapshot
+    [Migration("20180405061657_ManyToMany")]
+    partial class ManyToMany
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,6 +40,8 @@ namespace MT.DataManagement.Teams.AzureSql.Migrations
                 {
                     b.Property<string>("MemberId")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("IncludeInReports");
 
                     b.HasKey("MemberId");
 
@@ -75,13 +78,11 @@ namespace MT.DataManagement.Teams.AzureSql.Migrations
 
                     b.Property<string>("MemberId");
 
-                    b.Property<bool>("IncludeInReports");
-
                     b.HasKey("TeamId", "MemberId");
 
                     b.HasAlternateKey("MemberId", "TeamId");
 
-                    b.ToTable("TeamMembers");
+                    b.ToTable("TeamMember");
                 });
 
             modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.TeamRepo", b =>
@@ -94,7 +95,7 @@ namespace MT.DataManagement.Teams.AzureSql.Migrations
 
                     b.HasAlternateKey("RepoId", "TeamId");
 
-                    b.ToTable("TeamRepos");
+                    b.ToTable("TeamRepo");
                 });
 
             modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.CostMarker", b =>

@@ -39,15 +39,26 @@ namespace MT.DataManagement.Teams.AzureSql
             Team team = new Team
             {
                 TeamId = info.Name,
-                CostMarkers = info.CostLabels.Select(item => Convert(item)),
+                CostMarkers = info.CostLabels.Select(item => Convert(item)).ToList(),
                 DefaultMilestonesToTrack = info.DefaultMilestonesToTrack,
                 Organization = info.Organization,
-                Repos = info.Repositories.Select(item => new Repo { RepoId = item }),
-                Members = info.TeamMembers?.Select(item => new Member { MemberId = item })
             };
-            await this.context.Teams.AddAsync(team, cancellationToken);
+            if (info.Repositories != null)
+            {
+                foreach (var r in info.Repositories)
+                {
+                    team.Repos.Add(new Repo { RepoId = r });
+                }
+            }
 
-            // TODO: Add team members here
+            if (info.TeamMembers != null)
+            {
+                foreach (var m in info.TeamMembers)
+                {
+                    team.Members.Add(new Member { MemberId = m });
+                }
+            }
+            await this.context.Teams.AddAsync(team, cancellationToken);
         }
 
         public Task<TeamInfo> GetTeamInfoAsync(string teamName, CancellationToken cancellationToken)
@@ -73,15 +84,17 @@ namespace MT.DataManagement.Teams.AzureSql
 
         public async Task<IEnumerable<string>> GetUserTeamsAsync(string userName, CancellationToken token)
         {
-            return await Task.Run(() => this.context.Teams.Where(t => t.Members.Any(item => item.MemberId == userName)).Select(t => t.TeamId));
+            var f = this.context.TeamMembers.First();
+            Console.WriteLine(f);
+            return await Task.Run(() => this.context.TeamMembers.Where(t => t.MemberId == userName).Select(t => t.TeamId));
         }
 
         public async Task<TeamInfo> GetTeamInfo(string userName, string teamName, CancellationToken token)
         {
             return await Task.Run<TeamInfo>(() =>
             {
-                var team = this.context.Teams.Where(t => t.TeamId == teamName && t.Members.Any(m => m.MemberId == userName));
-                return ToTeamInfo(team);
+                var team = this.context.TeamMembers.Where(t => t.TeamId == teamName && t.MemberId == userName).Select(item => item.Team);
+                return team == null ? null : ToTeamInfo(team);
             });
         }
 

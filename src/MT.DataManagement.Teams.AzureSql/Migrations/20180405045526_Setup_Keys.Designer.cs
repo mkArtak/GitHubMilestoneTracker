@@ -11,9 +11,10 @@ using System;
 namespace MT.DataManagement.Teams.AzureSql.Migrations
 {
     [DbContext(typeof(MilestoneAnalyticsDataContext))]
-    partial class MilestoneAnalyticsDataContextModelSnapshot : ModelSnapshot
+    [Migration("20180405045526_Setup_Keys")]
+    partial class Setup_Keys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,10 +38,15 @@ namespace MT.DataManagement.Teams.AzureSql.Migrations
 
             modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.Member", b =>
                 {
-                    b.Property<string>("MemberId")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>("MemberId");
 
-                    b.HasKey("MemberId");
+                    b.Property<string>("TeamId");
+
+                    b.Property<bool>("IncludeInReports");
+
+                    b.HasKey("MemberId", "TeamId");
+
+                    b.HasIndex("TeamId");
 
                     b.ToTable("Members");
                 });
@@ -50,9 +56,13 @@ namespace MT.DataManagement.Teams.AzureSql.Migrations
                     b.Property<string>("RepoId")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("TeamId");
+
                     b.HasKey("RepoId");
 
-                    b.ToTable("Repos");
+                    b.HasIndex("TeamId");
+
+                    b.ToTable("Repo");
                 });
 
             modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.Team", b =>
@@ -62,39 +72,21 @@ namespace MT.DataManagement.Teams.AzureSql.Migrations
 
                     b.Property<string>("DefaultMilestonesToTrack");
 
-                    b.Property<string>("Organization");
-
-                    b.HasKey("TeamId");
-
-                    b.ToTable("Teams");
-                });
-
-            modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.TeamMember", b =>
-                {
-                    b.Property<string>("TeamId");
-
                     b.Property<string>("MemberId");
 
-                    b.Property<bool>("IncludeInReports");
+                    b.Property<string>("MemberTeamId");
 
-                    b.HasKey("TeamId", "MemberId");
-
-                    b.HasAlternateKey("MemberId", "TeamId");
-
-                    b.ToTable("TeamMembers");
-                });
-
-            modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.TeamRepo", b =>
-                {
-                    b.Property<string>("TeamId");
+                    b.Property<string>("Organization");
 
                     b.Property<string>("RepoId");
 
-                    b.HasKey("TeamId", "RepoId");
+                    b.HasKey("TeamId");
 
-                    b.HasAlternateKey("RepoId", "TeamId");
+                    b.HasIndex("RepoId");
 
-                    b.ToTable("TeamRepos");
+                    b.HasIndex("MemberId", "MemberTeamId");
+
+                    b.ToTable("Teams");
                 });
 
             modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.CostMarker", b =>
@@ -105,30 +97,30 @@ namespace MT.DataManagement.Teams.AzureSql.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.TeamMember", b =>
+            modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.Member", b =>
                 {
-                    b.HasOne("MT.DataManagement.Teams.AzureSql.Model.Member", "Member")
-                        .WithMany("TeamMembers")
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("MT.DataManagement.Teams.AzureSql.Model.Team", "Team")
-                        .WithMany("TeamMembers")
+                    b.HasOne("MT.DataManagement.Teams.AzureSql.Model.Team")
+                        .WithMany("Members")
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.TeamRepo", b =>
+            modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.Repo", b =>
                 {
-                    b.HasOne("MT.DataManagement.Teams.AzureSql.Model.Repo", "Repo")
-                        .WithMany("TeamRepos")
-                        .HasForeignKey("RepoId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne("MT.DataManagement.Teams.AzureSql.Model.Team")
+                        .WithMany("Repos")
+                        .HasForeignKey("TeamId");
+                });
 
-                    b.HasOne("MT.DataManagement.Teams.AzureSql.Model.Team", "Team")
-                        .WithMany("TeamRepos")
-                        .HasForeignKey("TeamId")
-                        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity("MT.DataManagement.Teams.AzureSql.Model.Team", b =>
+                {
+                    b.HasOne("MT.DataManagement.Teams.AzureSql.Model.Repo")
+                        .WithMany("Teams")
+                        .HasForeignKey("RepoId");
+
+                    b.HasOne("MT.DataManagement.Teams.AzureSql.Model.Member")
+                        .WithMany("Teams")
+                        .HasForeignKey("MemberId", "MemberTeamId");
                 });
 #pragma warning restore 612, 618
         }
