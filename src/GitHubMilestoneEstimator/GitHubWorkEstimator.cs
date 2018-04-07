@@ -97,7 +97,7 @@ namespace GitHub.Client
                 DaysOfWorkLeft = workLeft,
             });
 
-            return new BurndownDTO { WorkData = result };
+            return new BurndownDTO { WorkData = result, TotalNumberOfIssues = teamIssues.Count };
         }
 
         private async Task<List<Issue>> RetrieveAllResultsAsync(SearchIssuesRequest request, Func<Issue, bool> filter)
