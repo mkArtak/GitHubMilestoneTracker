@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilestoneTracker.Contracts;
+using MilestoneTracker.Contracts.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,9 +43,9 @@ namespace MilestoneTracker.Controllers
             IWorkEstimator workEstimator = await GetWorkEstimatorAsync(CancellationToken.None);
 
             TeamInfo team = await this.GetCurrentTeamAsync(CancellationToken.None);
-            IEnumerable<WorkDTO> burnDownDatas = await workEstimator.GetBurndownDataAsync(team, milestone, CancellationToken.None);
+            BurndownDTO burnDownData = await workEstimator.GetBurndownDataAsync(team, milestone, CancellationToken.None);
 
-            return new JsonResult(burnDownDatas);
+            return new JsonResult(burnDownData);
         }
 
         private async Task<IWorkEstimator> GetWorkEstimatorAsync(CancellationToken cancellationToken)

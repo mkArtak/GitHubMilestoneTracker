@@ -1,5 +1,6 @@
 ﻿using AM.Common.Validation;
 using MilestoneTracker.Contracts;
+using MilestoneTracker.Contracts.DTO;
 using Octokit;
 using System;
 using System.Collections.Generic;
@@ -44,7 +45,7 @@ namespace GitHub.Client
             }).ToList();
         }
 
-        public async Task<IEnumerable<WorkDTO>> GetBurndownDataAsync(TeamInfo team, string milestone, CancellationToken cancellationToken)
+        public async Task<BurndownDTO> GetBurndownDataAsync(TeamInfo team, string milestone, CancellationToken cancellationToken)
         {
             SearchIssuesRequest request = new SearchIssuesRequest($"{MilestoneParameterName}:\"{milestone}\"")
             {
@@ -96,7 +97,7 @@ namespace GitHub.Client
                 DaysOfWorkLeft = workLeft,
             });
 
-            return result;
+            return new BurndownDTO { WorkData = result };
         }
 
         private async Task<List<Issue>> RetrieveAllResultsAsync(SearchIssuesRequest request, Func<Issue, bool> filter)
