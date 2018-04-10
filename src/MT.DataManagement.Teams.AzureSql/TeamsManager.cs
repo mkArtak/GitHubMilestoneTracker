@@ -54,11 +54,13 @@ namespace MT.DataManagement.Teams.AzureSql
 
             if (info.TeamMembers != null)
             {
-                foreach (var m in info.TeamMembers)
+                foreach (var member in info.TeamMembers)
                 {
-                    team.Members.Add(new Member { MemberId = m });
+                    team.Members.Add(new Member { MemberId = member.Name });
                 }
+                // TODO: Rework this part to allow storing the "INcludeInReporting" field for members.
             }
+
             await this.context.Teams.AddAsync(team, cancellationToken);
         }
 
@@ -113,7 +115,7 @@ namespace MT.DataManagement.Teams.AzureSql
 
         private void PopulateRelationProperties(string teamName, TeamInfo result)
         {
-            result.TeamMembers = this.context.TeamMembers.Where(tm => tm.TeamId == teamName).Select(tm => tm.MemberId).ToArray();
+            result.TeamMembers = this.context.TeamMembers.Where(tm => tm.TeamId == teamName).Select(tm => new MilestoneTracker.Contracts.TeamMember { Name = tm.MemberId, IncludeInReports = tm.IncludeInReports }).ToArray();
             result.Repositories = this.context.TeamRepos.Where(tr => tr.TeamId == teamName).Select(tr => tr.RepoId).ToArray();
         }
 

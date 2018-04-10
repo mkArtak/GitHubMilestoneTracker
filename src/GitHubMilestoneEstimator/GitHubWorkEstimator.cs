@@ -32,11 +32,13 @@ namespace GitHub.Client
                 Is = new[] { IssueIsQualifier.Issue, IssueIsQualifier.Open },
             };
 
+            IEnumerable<string> membersToIncludeInReport = team.TeamMembers.Where(item => item.IncludeInReports).Select(item => item.Name).ToList();
+
             IList<Issue> searchResults = await this.RetrieveAllResultsAsync(
                 request,
                 issue => issue.Assignee != null
                     && team.TeamMembers != null
-                    && team.TeamMembers.Contains(issue.Assignee.Login)
+                    && membersToIncludeInReport.Contains(issue.Assignee.Login)
                     && this.GetIssueCost(issue) != 0);
             return searchResults.Select(item => new WorkItem
             {
@@ -56,11 +58,12 @@ namespace GitHub.Client
             //{
             //    request.Repos.Add(repo);
             //}
+            IEnumerable<string> membersToIncludeInReport = team.TeamMembers.Where(item => item.IncludeInReports).Select(item => item.Name).ToList();
 
             IList<Issue> teamIssues = await this.RetrieveAllResultsAsync(
                 request,
                 issue => issue.Assignee != null
-                    && team.TeamMembers.Contains(issue.Assignee.Login)
+                    && membersToIncludeInReport.Contains(issue.Assignee.Login)
                     && this.GetIssueCost(issue) != 0);
 
             double totalAmountOfWork = teamIssues.Sum(item => this.GetIssueCost(item));

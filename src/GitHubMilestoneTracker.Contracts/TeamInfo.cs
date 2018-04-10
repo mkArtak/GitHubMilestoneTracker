@@ -6,7 +6,7 @@
 
         public string Organization { get; set; }
 
-        public string[] TeamMembers { get; set; }
+        public TeamMember[] TeamMembers { get; set; }
 
         public CostMarker[] CostLabels { get; set; }
 

@@ -103,7 +103,7 @@ namespace MilestoneTracker.Pages
                         IEnumerable<WorkItem> issues = await workEstimator.GetAmountOfWorkAsync(currentTeam, milestone, cancellationToken);
                         if (currentTeam.TeamMembers != null)
                         {
-                            foreach (var member in currentTeam.TeamMembers)
+                            foreach (var member in currentTeam.TeamMembers.Where(item => item.IncludeInReports).Select(item => item.Name))
                             {
                                 if (tokenSource.IsCancellationRequested)
                                 {

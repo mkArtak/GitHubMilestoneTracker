@@ -29,7 +29,6 @@
             url: '@Html.Raw(Url.Action("GetBurndownDataAsync", "Burndown", new { teamName= Model.TeamName, milestone=Model.Milestone }))',
             type: 'GET',
             dataType: 'json',
-            //contentType: "application/json; charset=utf-8",
             success: function (data, err) {
                 PopulationChart(data.workData);
                 document.getElementById("totalIssues").innerHTML = data.totalNumberOfIssues;
