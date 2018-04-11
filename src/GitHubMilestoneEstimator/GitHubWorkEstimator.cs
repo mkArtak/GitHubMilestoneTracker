@@ -32,19 +32,19 @@ namespace GitHub.Client
                 Is = new[] { IssueIsQualifier.Issue, IssueIsQualifier.Open },
             };
 
-            IEnumerable<string> membersToIncludeInReport = team.TeamMembers.Where(item => item.IncludeInReports).Select(item => item.Name).ToList();
+            IEnumerable<string> membersToIncludeInReport = GetMembersToIncludeInReport(team);
 
             IList<Issue> searchResults = await this.RetrieveAllResultsAsync(
                 request,
-                issue => issue.Assignee != null
-                    && team.TeamMembers != null
-                    && membersToIncludeInReport.Contains(issue.Assignee.Login)
-                    && this.GetIssueCost(issue) != 0);
-            return searchResults.Select(item => new WorkItem
-            {
-                Owner = item.Assignee.Login,
-                Cost = this.GetIssueCost(item)
-            }).ToList();
+                issue => (issue.Assignee == null || membersToIncludeInReport.Contains(issue.Assignee.Login)));
+            string[] teamRepos = team.Repositories ?? new string[] { };
+            return searchResults
+                .Where(issue => issue.Assignee != null || teamRepos.Any(r => issue.Url.StartsWith($"https://api.github.com/repos/{r}/", StringComparison.OrdinalIgnoreCase)))
+                .Select(item => new WorkItem
+                {
+                    Owner = item.Assignee == null ? "Unassigned" : item.Assignee.Login,
+                    Cost = this.GetIssueCost(item)
+                }).ToList();
         }
 
         public async Task<BurndownDTO> GetBurndownDataAsync(TeamInfo team, string milestone, CancellationToken cancellationToken)
@@ -58,7 +58,7 @@ namespace GitHub.Client
             //{
             //    request.Repos.Add(repo);
             //}
-            IEnumerable<string> membersToIncludeInReport = team.TeamMembers.Where(item => item.IncludeInReports).Select(item => item.Name).ToList();
+            IEnumerable<string> membersToIncludeInReport = GetMembersToIncludeInReport(team);
 
             IList<Issue> teamIssues = await this.RetrieveAllResultsAsync(
                 request,
@@ -103,6 +103,12 @@ namespace GitHub.Client
             return new BurndownDTO { WorkData = result, TotalNumberOfIssues = teamIssues.Count };
         }
 
+        private static IEnumerable<string> GetMembersToIncludeInReport(TeamInfo team)
+        {
+            var result = team.TeamMembers?.Where(item => item.IncludeInReports)?.Select(item => item.Name)?.ToList();
+            return result ?? new List<string>();
+        }
+
         private async Task<List<Issue>> RetrieveAllResultsAsync(SearchIssuesRequest request, Func<Issue, bool> filter)
         {
             List<Issue> retrievedIssues = new List<Issue>();
@@ -113,6 +119,7 @@ namespace GitHub.Client
                 int retries = 3;
                 do
                 {
+                    request.PerPage = 100;
                     searchResult = await this.client.Search.SearchIssues(request);
                     pageResults = searchResult.Items.Where(filter);
                     if (retries-- == 0)
@@ -128,6 +135,11 @@ namespace GitHub.Client
                 }
 
                 request.Page++;
+                if (request.Page == 6)
+                {
+                    // No need to retrieve more than 500 results
+                    break;
+                }
             } while (true);
 
             return retrievedIssues;

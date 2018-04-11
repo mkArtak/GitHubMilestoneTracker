@@ -77,6 +77,11 @@ namespace MilestoneTracker.Model
 
         public string GetClassForMemberCell(string member)
         {
+            if (member.Equals("Unassigned", StringComparison.OrdinalIgnoreCase))
+            {
+                return " row-member-unassigned";
+            }
+
             if (this.MembersWithMaxAmountOfWork.Contains(member))
             {
                 return " row-item-max";
