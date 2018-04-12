@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using MilestoneTracker.Contracts;
 using MilestoneTracker.Contracts.DTO;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,30 +39,28 @@ namespace MilestoneTracker.Controllers
                 throw new InvalidOperationException(ModelState.Values.First().Errors.First().ErrorMessage);
             }
 
-            IWorkEstimator workEstimator = await GetWorkEstimatorAsync(CancellationToken.None);
+            IWorkEstimator workEstimator = await GetWorkEstimatorAsync(teamName, CancellationToken.None);
 
-            TeamInfo team = await this.GetCurrentTeamAsync(CancellationToken.None);
+            TeamInfo team = await this.GetCurrentTeamAsync(teamName, CancellationToken.None);
             BurndownDTO burnDownData = await workEstimator.GetBurndownDataAsync(team, milestone, CancellationToken.None);
 
             return new JsonResult(burnDownData);
         }
 
-        private async Task<IWorkEstimator> GetWorkEstimatorAsync(CancellationToken cancellationToken)
+        private async Task<IWorkEstimator> GetWorkEstimatorAsync(string teamName, CancellationToken cancellationToken)
         {
             string accessToken = await this.HttpContext.GetTokenAsync("access_token");
 
             // This allows the client to make requests to the GitHub API on behalf of the user
             // without ever having the user's OAuth credentials.
-            return accessToken == null ? null : this.workEstimatorFactory.Create(accessToken, await this.GetCurrentTeamAsync(cancellationToken));
+            return accessToken == null ? null : this.workEstimatorFactory.Create(accessToken, await this.GetCurrentTeamAsync(teamName, cancellationToken));
         }
 
-        private async Task<TeamInfo> GetCurrentTeamAsync(CancellationToken token)
+        private async Task<TeamInfo> GetCurrentTeamAsync(string teamName, CancellationToken token)
         {
             if (this.currentTeam == null)
             {
-                // TODO: Fix: Using only the first team for now for simplicity
-                IEnumerable<string> teams = await this.userTeamsManager.GetUserTeamsAsync(User.Identity.Name, CancellationToken.None);
-                this.currentTeam = await this.teamsManager.GetTeamInfoAsync(teams.First(), token);
+                this.currentTeam = await this.teamsManager.GetTeamInfoAsync(teamName, token);
             }
 
             return this.currentTeam;
