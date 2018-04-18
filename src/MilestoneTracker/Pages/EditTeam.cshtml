@@ -1,0 +1,30 @@
+﻿@page
+@model MilestoneTracker.Pages.EditTeamModel
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<script src="https://fb.me/react-15.1.0.js"></script>
+<script src="https://fb.me/react-dom-15.1.0.js"></script>
+
+<script type="text/javascript">
+    function removeMember(e) {
+        if (!e) {
+            var e = window.event;
+        }
+        var target = (e.target) ? e.target : e.srcElement;
+    }
+
+    function addMember(e) {
+        if (!e) {
+            var e = window.event;
+        }
+
+        var target = (e.target) ? e.target : e.srcElement;
+    }
+</script>
+
+<!-- New UI Starts here-->
+<div class="team-name">@Model.Team.Name</div>
+<div>@Html.Partial("Views/EditTeamMembers", Model.Team)</div>
+<div>@Html.Partial("Views/EditTeamRepos", Model.Team)</div>
+<!-- And ends here-->

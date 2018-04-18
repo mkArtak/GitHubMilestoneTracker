@@ -16,6 +16,8 @@ namespace MilestoneTracker.Pages
 
         public IEnumerable<string> Teams { get; private set; }
 
+        public TeamInfo NewTeam { get; set; }
+
         public TeamsModel(ITeamsManager teamsManager, IUserTeamsManager userTeamsManager)
         {
             this.teamsManager = teamsManager.Ensure(nameof(teamsManager)).IsNotNull().Value;
@@ -27,6 +29,14 @@ namespace MilestoneTracker.Pages
         {
             IEnumerable<string> teams = await this.userTeamsManager.GetUserTeamsAsync(User.Identity.Name, CancellationToken.None);
             this.Teams = teams;
+            return Page();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AddTeam([FromBody]TeamInfo team)
+        {
+            await this.teamsManager.AddTeamAsync(User.Identity.Name, team, CancellationToken.None);
             return Page();
         }
     }

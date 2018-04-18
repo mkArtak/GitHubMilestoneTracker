@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MilestoneTracker</title>
+    <title>@ViewData["Title"] - Repo Analytics</title>
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -30,9 +30,8 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-page="/Index">Team data</a></li>
-                    <li><a asp-page="/TeamBurndown">Team Burndown</a></li>
-                    <li><a asp-page="/Charts">Burndown chart</a></li>
+                    <li><a asp-page="/Index">Work progress</a></li>
+                    <li><a asp-page="/EditTeam">Team Info</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     @if (User.Identity.IsAuthenticated)
