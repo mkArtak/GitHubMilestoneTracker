@@ -1,17 +1,50 @@
 ﻿@model MilestoneTracker.Contracts.TeamInfo
-<div>
-    <ul id="members">
-        @foreach (var member in Model.TeamMembers)
-        {
-            <li><div class="row"><span class="glyphicon-bold">@member</span> <button type="button" class="btn btn-danger" onclick="removeMember(this.id)">Remove</button></div></li>
-        }
-    </ul>
-    <div class="input-group-addon"></div>
-</div>
-<script type="text/javascript">
-    var items = $('#members').getElementsByTagName('li');
-    for (var i = 0; i < items.length; i++) {
-        var memberButton = items[i].getElementsByTagName('button');
-        memberButton.onclick = removeMember;
+<style type="text/css">
+    .member-name {
     }
-</script>
+
+    .member-item {
+        display: inline-block;
+    }
+
+    .add-item-block {
+    }
+
+    .inline-inputs {
+        display: inline-flex;
+        width: 100%;
+    }
+
+        .inline-inputs .btn-success {
+            width: 50px;
+        }
+
+        .inline-inputs input {
+            margin-left: 3px;
+            justify-content: flex-start;
+        }
+</style>
+<div class="panel panel-default section-block">
+    <div class="panel-heading">Members</div>
+    <div class="panel-body">
+        <ul>
+            @{
+                foreach (var member in Model.TeamMembers)
+                {
+                    <li class="member-name"><div class="member-item">@member.Name<input type="button" class="btn btn-warning" id="btnRemoveMember" value="remove" /></div></li>
+                }
+            }
+        </ul>
+    </div>
+    <div class="panel-footer clearfix">
+        <div class="add-item-block">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                <div class="inline-inputs">
+                    <input id="txtMemberName" type="text" class="form-control" name="txtMemberName" placeholder="Member name">
+                    <input type="button" id="btnAddMember" name="btnAddMember" class="btn-success" value="Add" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

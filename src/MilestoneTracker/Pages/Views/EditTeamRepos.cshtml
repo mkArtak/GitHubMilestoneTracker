@@ -2,5 +2,35 @@
 @*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@{
-}
+<style type="text/css">
+    .repo-name {
+    }
+
+    .repo-item {
+        display: inline-block;
+    }
+</style>
+<div class="panel panel-default section-block">
+    <div class="panel-heading">Repositories</div>
+    <div class="panel-body">
+        <ul>
+            @{
+                foreach (var repo in Model.Repositories)
+                {
+                    <li class="repo-name"><div class="repo-item">@repo <input type="button" id="btnRemoveRepo" class="btn btn-warning" value="remove" /></div></li>
+                }
+            }
+        </ul>
+    </div>
+    <div class="panel-footer clearfix">
+        <div class="add-item-block">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                <div class="inline-inputs">
+                    <input id="txtRepoName" type="text" class="form-control" name="txtRepoName" placeholder="Repo name">
+                    <input type="button" id="btnAddRepo" name="btnAddRepo" class="btn-success" value="Add" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

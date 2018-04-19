@@ -23,8 +23,21 @@
     }
 </script>
 
-<!-- New UI Starts here-->
-<div class="team-name">@Model.Team.Name</div>
-<div>@Html.Partial("Views/EditTeamMembers", Model.Team)</div>
-<div>@Html.Partial("Views/EditTeamRepos", Model.Team)</div>
-<!-- And ends here-->
+<style type="text/css">
+    .section-block {
+        min-width: 400px;
+        width: 40%;
+        float: left;
+        margin: 6px;
+    }
+
+    .panel-body {
+        overflow-y: scroll;
+        height: 450px;
+    }
+</style>
+<div class="team-name"><h2>@Model.Team.Name</h2></div>
+<div class="clearfix">
+    <div class="section-block">@Html.Partial("Views/EditTeamMembers", Model.Team)</div>
+    <div class="section-block">@Html.Partial("Views/EditTeamRepos", Model.Team)</div>
+</div>
