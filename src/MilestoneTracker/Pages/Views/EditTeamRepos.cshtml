@@ -11,16 +11,21 @@
     }
 </style>
 <div class="panel panel-default section-block">
-    <div class="panel-heading">Repositories</div>
+    <div class="panel-heading"><h4>Repositories</h4></div>
     <div class="panel-body">
-        <ul>
+        <div class="container-fluid">
             @{
                 foreach (var repo in Model.Repositories)
                 {
-                    <li class="repo-name"><div class="repo-item">@repo <input type="button" id="btnRemoveRepo" class="btn btn-warning" value="remove" /></div></li>
+                    <div class="row">
+                        <div class="col-sm-9">@repo</div>
+                        <div class="col-sm-1">
+                            <input type="button" class="btn btn-warning" id="btnRemoveRepo" value="remove" />
+                        </div>
+                    </div>
                 }
             }
-        </ul>
+        </div>
     </div>
     <div class="panel-footer clearfix">
         <div class="add-item-block">
