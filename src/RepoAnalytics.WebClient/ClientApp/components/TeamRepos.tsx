@@ -46,7 +46,7 @@ export class TeamRepos extends React.Component<ITeamReposProps, IteamReposState>
                         <div className="input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-user"></i></span>
                             <div className="inline-inputs">
-                                <input id="txtRepoName" type="text" className="form-control" name="txtRepoName" placeholder="Member name" />
+                                <input id="txtRepoName" type="text" className="form-control" name="txtRepoName" placeholder="Repository name" />
                                 <input type="button" id="btnAddRepo" name="btnAddRepo" className="btn-success" value="Add" />
                             </div>
                         </div>

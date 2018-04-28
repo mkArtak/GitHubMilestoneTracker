@@ -14,3 +14,5 @@
 /src/*/*.csproj.user
 /src/MT.DataManagement.Teams.AzureSql/bin
 /src/MT.DataManagement.Teams.AzureSql/obj
+/src/MilestoneTracker/node_modules
+/src/RepoAnalytics.WebClient/.vscode
