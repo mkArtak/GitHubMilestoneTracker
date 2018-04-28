@@ -24,7 +24,7 @@ export class TeamRepos extends React.Component<ITeamReposProps, IteamReposState>
     public render() {
         let nodes = this.state.repositories.map(function (repo: string) {
             return (
-                <div className="row">
+                <div className="row" key={repo}>
                     <div className="col-sm-9">{repo}</div>
                     <div className="col-sm-1">
                         <input type="button" className="btn btn-warning" value="remove" />

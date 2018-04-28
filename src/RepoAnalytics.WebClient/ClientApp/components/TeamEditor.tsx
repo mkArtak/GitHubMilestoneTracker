@@ -1,8 +1,8 @@
 import 'isomorphic-fetch';
 import * as React from 'react';
 
-import { ITeamInfo} from './dataTransfer/ITeamInfo';
-import { ITeamMember} from './dataTransfer/ITeamMember';
+import { ITeamInfo } from './dataTransfer/ITeamInfo';
+import { ITeamMember } from './dataTransfer/ITeamMember';
 
 import { TeamMembers } from './TeamMembers';
 import { TeamRepos } from './TeamRepos';
@@ -20,7 +20,7 @@ export class TeamEditor extends React.Component<ITeamEditorProps, ITeamEditorSta
     constructor(props: ITeamEditorProps) {
         super(props);
 
-        this.state = { members: [], repositories: [] };
+        this.state = { members: [{ name: "mkArtak", includeInReports: false }], repositories: ["aspnet/Razor"] };
     }
 
     componentDidMount() {
@@ -29,10 +29,10 @@ export class TeamEditor extends React.Component<ITeamEditorProps, ITeamEditorSta
             .then(data => {
                 this.setState({ members: data.teamMembers, loading: false });
             });*/
-        this.setState({
-            members: [{ name: "mkArtak", includeInReports: false }],
-            repositories: ['aspnet/test']
-        });
+        // this.setState({
+        //     members: [{ name: "mkArtak", includeInReports: false }],
+        //     repositories: ['aspnet/test']
+        // });
     }
 
     componentWillUnmount() {

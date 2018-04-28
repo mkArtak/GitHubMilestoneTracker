@@ -10,6 +10,7 @@ interface ITeamMembersProps {
 interface IteamMembersState {
     members: ITeamMember[];
     loading: boolean;
+    newMemberName: string;
 }
 
 export class TeamMembers extends React.Component<ITeamMembersProps, IteamMembersState> {
@@ -19,17 +20,20 @@ export class TeamMembers extends React.Component<ITeamMembersProps, IteamMembers
         // This binding is necessary to make `this` work in the callback
         this.addMember = this.addMember.bind(this);
         this.removeMember = this.removeMember.bind(this);
-
+        this.onNewMemberNameChanged = this.onNewMemberNameChanged.bind(this);
+        
         this.state = {
             members: props.members,
-            loading: false
+            loading: false,
+            newMemberName: ""
         };
     }
 
     addMember(e: any) {
-        console.log("Adding member");
+        console.log("Adding member " + this.state.newMemberName);
         this.setState({
-            members: this.state.members.concat([{ name: "hopa", includeInReports: false }])
+            // Call the controller ADD method here passing in the member alias here
+            members: this.state.members.concat([{ name: this.state.newMemberName, includeInReports: false }])
         }, () => {
             console.log("Added member");
         });
@@ -39,13 +43,17 @@ export class TeamMembers extends React.Component<ITeamMembersProps, IteamMembers
         console.log("Removing member " + member.name);
     }
 
+    onNewMemberNameChanged(event: any) {
+        this.setState({ newMemberName: event.target.value });
+    }
+
     public render() {
-        let nodes = this.state.members.map((member) => function (member: ITeamMember, thisArg: TeamMembers) {
+        let nodes = this.state.members.map(function (member: ITeamMember) {
             return (
-                <div className="row">
+                <div className="row" key={member.name}>
                     <div className="col-sm-9">{member.name}</div>
                     <div className="col-sm-1">
-                        <input type="button" className="btn btn-warning" value="remove" onClick={e => thisArg.removeMember(member, e)} />
+                        <input type="button" className="btn btn-warning" value="remove" />
                     </div>
                 </div>
             );
@@ -64,7 +72,7 @@ export class TeamMembers extends React.Component<ITeamMembersProps, IteamMembers
                         <div className="input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-user"></i></span>
                             <div className="inline-inputs">
-                                <input id="txtMemberName" type="text" className="form-control" name="txtMemberName" placeholder="Member name" />
+                                <input type="text" className="form-control" placeholder="Member name" value={this.state.newMemberName} onChange={this.onNewMemberNameChanged} />
                                 <input type="button" className="btn-success" value="Add" onClick={this.addMember} />
                             </div>
                         </div>
