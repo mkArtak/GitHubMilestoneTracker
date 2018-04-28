@@ -1,15 +1,18 @@
 import 'isomorphic-fetch';
 import * as React from 'react';
+
+import { ITeamInfo} from './dataTransfer/ITeamInfo';
+import { ITeamMember} from './dataTransfer/ITeamMember';
+
 import { TeamMembers } from './TeamMembers';
 import { TeamRepos } from './TeamRepos';
-import { TeamInfo, TeamMember } from './Interfaces';
 
 interface ITeamEditorProps {
     teamName: string;
 }
 
 interface ITeamEditorState {
-    members: TeamMember[];
+    members: ITeamMember[];
     repositories: string[];
 }
 
@@ -38,10 +41,12 @@ export class TeamEditor extends React.Component<ITeamEditorProps, ITeamEditorSta
 
     render() {
         return (
-            <div>
+            <div className="clearfix">
                 <div className="section-block">
                     <TeamMembers teamName={this.props.teamName} members={this.state.members} />
-                    <TeamRepos teamName={this.props.teamName} repos={this.state.repositories} />
+                </div>
+                <div className="clearfix">
+                    <TeamRepos teamName={this.props.teamName} repositories={this.state.repositories} />
                 </div>
             </div>
         );

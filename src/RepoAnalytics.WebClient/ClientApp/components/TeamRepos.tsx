@@ -1,14 +1,13 @@
 import * as React from 'react';
 import 'isomorphic-fetch';
-import { TeamMember, TeamInfo } from './Interfaces';
 
 interface ITeamReposProps {
     teamName: string;
-    repos: string[];
+    repositories: string[];
 }
 
 interface IteamReposState {
-    repos: string[];
+    repositories: string[];
     loading: boolean;
 }
 
@@ -17,13 +16,13 @@ export class TeamRepos extends React.Component<ITeamReposProps, IteamReposState>
         super(props);
 
         this.state = {
-            repos: props.repos,
+            repositories: props.repositories,
             loading: false
         };
     }
 
     public render() {
-        let nodes = this.state.repos.map(function (repo: string) {
+        let nodes = this.state.repositories.map(function (repo: string) {
             return (
                 <div className="row">
                     <div className="col-sm-9">{repo}</div>

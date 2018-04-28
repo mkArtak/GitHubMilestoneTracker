@@ -1,0 +1,47 @@
+.section-block {
+    min-width: 400px;
+    width: 40%;
+    float: left;
+    margin: 6px;
+}
+
+.panel-body {
+    overflow-y: auto;
+    height: 450px;
+}
+
+.member-name {
+    display: inherit;
+}
+
+.member-item {
+    display: inline-block;
+    width: 350px;
+}
+
+.repo-name {
+    display: inherit;
+}
+
+.repo-item {
+    display: inline-block;
+    width: 350px;
+}
+
+.add-item-block {
+    display: inherit;
+}
+
+.inline-inputs {
+    display: inline-flex;
+    width: 100%;
+}
+
+.inline-inputs .btn-success {
+    width: 50px;
+}
+
+.inline-inputs input {
+    margin-left: 3px;
+    justify-content: flex-start;
+}

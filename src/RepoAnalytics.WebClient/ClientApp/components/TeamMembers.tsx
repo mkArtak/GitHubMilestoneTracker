@@ -1,14 +1,14 @@
 import * as React from 'react';
 import 'isomorphic-fetch';
-import { TeamMember, TeamInfo } from './Interfaces';
+import { ITeamMember } from './dataTransfer/ITeamMember';
 
 interface ITeamMembersProps {
     teamName: string;
-    members: TeamMember[];
+    members: ITeamMember[];
 }
 
 interface IteamMembersState {
-    members: TeamMember[];
+    members: ITeamMember[];
     loading: boolean;
 }
 
@@ -23,7 +23,7 @@ export class TeamMembers extends React.Component<ITeamMembersProps, IteamMembers
     }
 
     public render() {
-        let memberNodes = this.state.members.map(function (member: TeamMember) {
+        let memberNodes = this.state.members.map(function (member: ITeamMember) {
             return (
                 <div className="row">
                     <div className="col-sm-9">{member.name}</div>
