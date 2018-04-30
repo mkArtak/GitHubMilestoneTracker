@@ -26,6 +26,14 @@ export class TeamEditor extends React.Component<ITeamEditorProps, ITeamEditorSta
         };
     }
 
+    componentDidMount() {
+        fetch("api/Teams/" + this.props.teamName)
+            .then(response => response.json() as Promise<ITeamInfo>)
+            .then(data => {
+                this.setState({ members: data.teamMembers, repositories: data.repositories });
+            });
+    }
+
     /*componentWillUnmount() {
 
     }*/

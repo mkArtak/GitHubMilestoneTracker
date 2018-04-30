@@ -93,7 +93,7 @@ namespace MT.DataManagement.Teams.AzureSql
             return await Task.Run(() => this.context.TeamMembers.Where(t => t.MemberId == userName).Select(t => t.TeamId));
         }
 
-        public async Task<TeamInfo> GetTeamInfo(string userName, string teamName, CancellationToken token)
+        public async Task<TeamInfo> GetTeamInfoAsync(string userName, string teamName, CancellationToken token)
         {
             TeamInfo result = null;
 
@@ -111,6 +111,21 @@ namespace MT.DataManagement.Teams.AzureSql
             }
 
             return result;
+        }
+
+        public async Task AddMemberAsync(string teamName, MilestoneTracker.Contracts.TeamMember member, CancellationToken cancellationToken)
+        {
+            teamName.Ensure(nameof(teamName)).IsNotNullOrWhitespace();
+            member.Ensure(nameof(member)).IsNotNull();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            this.context.TeamMembers.Add(new Model.TeamMember
+            {
+                IncludeInReports = member.IncludeInReports,
+                MemberId = member.Name,
+                TeamId = teamName
+            });
+            await this.context.SaveChangesAsync(cancellationToken);
         }
 
         private void PopulateRelationProperties(string teamName, TeamInfo result)

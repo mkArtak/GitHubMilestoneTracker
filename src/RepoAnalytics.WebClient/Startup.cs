@@ -2,11 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GitHub.Client;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MilestoneTracker.Options;
+using MT.DataManagement.Teams.AzureSql.DependencyInjection;
 
 namespace RepoAnalytics.WebClient
 {
@@ -23,6 +27,44 @@ namespace RepoAnalytics.WebClient
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("dev", bld =>
+                {
+                    bld.WithOrigins("https://localhost:44361");
+                });
+
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
+            });
+            services.AddOptions();
+            services.Configure<GitHubAuthOptions>(this.Configuration.GetSection("GitHubAuth"));
+
+            services.AddTeams(this.Configuration);
+            services.AddSingleton<WorkEstimatorFactory>();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = "GitHub";
+            })
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/signin";
+                options.LogoutPath = "/signout";
+            })
+            .AddGitHub(options =>
+            {
+                options.ClientId = this.Configuration["GitHubAuth:ClientId"];
+                options.ClientSecret = this.Configuration["GitHubAuth:ClientSecret"];
+                options.Scope.Add("user:email");
+                options.Scope.Add("repo");
+                options.SaveTokens = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,7 +85,8 @@ namespace RepoAnalytics.WebClient
             }
 
             app.UseStaticFiles();
-
+            app.UseCors("dev");
+            app.UseAuthentication();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

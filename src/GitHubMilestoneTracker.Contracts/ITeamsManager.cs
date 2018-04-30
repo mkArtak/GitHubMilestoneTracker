@@ -26,8 +26,17 @@ namespace MilestoneTracker.Contracts
         /// </summary>
         /// <param name="ownerLogin">The login of the owner member</param>
         /// <param name="info">The team data.</param>
-        /// <param name="continuationToken">An optional continuation token to retrieve next set of the results from the previous query.</param>
+        /// <param name="cancellationToken">A cancellation token, which will allow the caller to request cancellation.</param>
         /// <returns>A Task instance representing the requested asynchronous operation.</returns>
         Task AddTeamAsync(string ownerLogin, TeamInfo info, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Adds a new member to the team.
+        /// </summary>
+        /// <param name="teamName">The name of the team to add member to.</param>
+        /// <param name="member">The identity of the member.</param>
+        /// <param name="cancellationToken">A cancellation token, which will allow the caller to request cancellation.</param>
+        /// <returns></returns>
+        Task AddMemberAsync(string teamName, TeamMember member, CancellationToken cancellationToken);
     }
 }

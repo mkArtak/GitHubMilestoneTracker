@@ -139,7 +139,7 @@ namespace MilestoneTracker.Pages
         {
             if (this.currentTeam == null)
             {
-                this.currentTeam = await this.userTeamsManager.GetTeamInfo(User.Identity.Name, this.TeamName, CancellationToken.None);
+                this.currentTeam = await this.userTeamsManager.GetTeamInfoAsync(User.Identity.Name, this.TeamName, CancellationToken.None);
             }
 
             return this.currentTeam;

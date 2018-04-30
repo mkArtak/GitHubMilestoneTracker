@@ -8,6 +8,6 @@ namespace MilestoneTracker.Contracts
     {
         Task<IEnumerable<string>> GetUserTeamsAsync(string userName, CancellationToken token);
 
-        Task<TeamInfo> GetTeamInfo(string userName, string teamName, CancellationToken token);
+        Task<TeamInfo> GetTeamInfoAsync(string userName, string teamName, CancellationToken token);
     }
 }

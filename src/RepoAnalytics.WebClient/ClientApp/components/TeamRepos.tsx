@@ -22,12 +22,11 @@ export class TeamRepos extends React.Component<ITeamReposProps, IteamReposState>
         };
     }
 
-    componentDidMount() {
-        fetch("api/Teams/" + this.props.teamName)
-            .then(response => response.json() as Promise<ITeamInfo>)
-            .then(data => {
-                this.setState({ repositories: data.repositories });
-            });
+
+    componentWillReceiveProps(newProps: ITeamReposProps): void {
+        this.setState({
+            repositories: newProps.repositories,
+        });
     }
 
     public render() {

@@ -32,12 +32,10 @@ export class TeamMembers extends React.Component<ITeamMembersProps, ITeamMembers
         };
     }
 
-    componentDidMount() {
-        fetch("api/Teams/" + this.props.teamName)
-            .then(response => response.json() as Promise<ITeamInfo>)
-            .then(data => {
-                this.setState({ members: data.teamMembers });
-            });
+    componentWillReceiveProps(newProps: ITeamMembersProps): void {
+        this.setState({
+            members: newProps.members,
+        });
     }
 
     private addMember(e: any) {
@@ -46,12 +44,25 @@ export class TeamMembers extends React.Component<ITeamMembersProps, ITeamMembers
             return;
         }
 
-        this.setState({
-            // todo: Call the controller ADD method here passing in the member alias here
-            members: this.state.members.concat([{ name: this.state.newMemberName, includeInReports: false }]),
-            newMemberName: "",
-            canAddCurrentMember: false
-        });
+        // todo: Call the controller ADD method here passing in the member alias here
+        fetch("api/Teams/" + this.props.teamName + "/members",
+            {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    member: this.state.newMemberName,
+                })
+            }).then(() =>
+                this.setState({
+                    members: this.state.members.concat([{
+                        name: this.state.newMemberName, includeInReports: false
+                    }]),
+                    newMemberName: "",
+                    canAddCurrentMember: false
+                }));
     }
 
     public updateMembers(members: ITeamMember[]) {
