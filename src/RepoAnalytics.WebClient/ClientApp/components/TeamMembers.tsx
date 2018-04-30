@@ -1,6 +1,7 @@
-import * as React from 'react';
-import 'isomorphic-fetch';
-import { ITeamMember } from './dataTransfer/ITeamMember';
+import * as React from "react";
+import "isomorphic-fetch";
+import { ITeamMember } from "./dataTransfer/ITeamMember";
+import { ITeamInfo } from "./dataTransfer/ITeamInfo";
 
 interface ITeamMembersProps {
     teamName: string;
@@ -18,7 +19,7 @@ export class TeamMembers extends React.Component<ITeamMembersProps, ITeamMembers
     constructor(props: ITeamMembersProps) {
         super(props);
 
-        // This binding is necessary to make `this` work in the callback
+        // this binding is necessary to make `this` work in the callback scenarios
         this.addMember = this.addMember.bind(this);
         this.removeMember = this.removeMember.bind(this);
         this.onNewMemberNameChanged = this.onNewMemberNameChanged.bind(this);
@@ -31,29 +32,41 @@ export class TeamMembers extends React.Component<ITeamMembersProps, ITeamMembers
         };
     }
 
+    componentDidMount() {
+        fetch("api/Teams/" + this.props.teamName)
+            .then(response => response.json() as Promise<ITeamInfo>)
+            .then(data => {
+                this.setState({ members: data.teamMembers });
+            });
+    }
+
     private addMember(e: any) {
         console.log("Adding member " + this.state.newMemberName);
-        if (this.state.newMemberName === "" || this.memberExists(this.state.newMemberName))
+        if (this.state.newMemberName === "" || this.memberExists(this.state.newMemberName)) {
             return;
+        }
 
         this.setState({
-            // TODO: Call the controller ADD method here passing in the member alias here
+            // todo: Call the controller ADD method here passing in the member alias here
             members: this.state.members.concat([{ name: this.state.newMemberName, includeInReports: false }]),
             newMemberName: "",
             canAddCurrentMember: false
         });
     }
 
+    public updateMembers(members: ITeamMember[]) {
+        this.setState({ members: members });
+    }
+
     private removeMember(member: ITeamMember, e: any) {
-        console.log("Removing member " + member.name);
         var memberIndex = this.getMemberIndex(member.name);
         if (memberIndex === -1) {
             return;
         }
 
-        // TODO: Call the API to remove the member from the current team
+        // todo: Call the API to remove the member from the current team
         this.setState({
-            members: this.state.members.filter((_, i) => i != memberIndex)
+            members: this.state.members.filter((_, i) => i !== memberIndex)
         }, () => {
             console.log("Removed member " + member.name);
         });
@@ -68,7 +81,7 @@ export class TeamMembers extends React.Component<ITeamMembersProps, ITeamMembers
     }
 
     private memberExists(memberName: string) {
-        return this.getMemberIndex(memberName) != -1;
+        return this.getMemberIndex(memberName) !== -1;
     }
 
     private getMemberIndex(memberName: string) {
@@ -82,7 +95,10 @@ export class TeamMembers extends React.Component<ITeamMembersProps, ITeamMembers
     }
 
     public render() {
-        let nodes = this.state.members.map(member => {
+        console.log("Rendering teamMembers with members " + this.state.members.length);
+
+        const _members: ITeamMember[] = this.state.members;
+        let nodes: JSX.Element[] = _members.map(member => {
             return (
                 <div className="row" key={member.name}>
                     <div className="col-sm-9">{member.name}</div>

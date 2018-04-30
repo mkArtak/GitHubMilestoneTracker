@@ -1,5 +1,6 @@
 import * as React from 'react';
 import 'isomorphic-fetch';
+import { ITeamInfo } from './dataTransfer/ITeamInfo';
 
 interface ITeamReposProps {
     teamName: string;
@@ -19,6 +20,14 @@ export class TeamRepos extends React.Component<ITeamReposProps, IteamReposState>
             repositories: props.repositories,
             loading: false
         };
+    }
+
+    componentDidMount() {
+        fetch("api/Teams/" + this.props.teamName)
+            .then(response => response.json() as Promise<ITeamInfo>)
+            .then(data => {
+                this.setState({ repositories: data.repositories });
+            });
     }
 
     public render() {

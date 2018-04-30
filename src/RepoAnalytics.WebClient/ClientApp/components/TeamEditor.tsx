@@ -1,11 +1,11 @@
-import 'isomorphic-fetch';
-import * as React from 'react';
+import "isomorphic-fetch";
+import * as React from "react";
 
-import { ITeamInfo } from './dataTransfer/ITeamInfo';
-import { ITeamMember } from './dataTransfer/ITeamMember';
+import { ITeamInfo } from "./dataTransfer/ITeamInfo";
+import { ITeamMember } from "./dataTransfer/ITeamMember";
 
-import { TeamMembers } from './TeamMembers';
-import { TeamRepos } from './TeamRepos';
+import { TeamMembers } from "./TeamMembers";
+import { TeamRepos } from "./TeamRepos";
 
 interface ITeamEditorProps {
     teamName: string;
@@ -20,26 +20,18 @@ export class TeamEditor extends React.Component<ITeamEditorProps, ITeamEditorSta
     constructor(props: ITeamEditorProps) {
         super(props);
 
-        this.state = { members: [{ name: "mkArtak", includeInReports: false }], repositories: ["aspnet/Razor"] };
+        this.state = {
+            members: [],
+            repositories: []
+        };
     }
 
-    componentDidMount() {
-        /*fetch('api/Teams/' + this.props.teamName)
-            .then(response => response.json() as Promise<TeamInfo>)
-            .then(data => {
-                this.setState({ members: data.teamMembers, loading: false });
-            });*/
-        // this.setState({
-        //     members: [{ name: "mkArtak", includeInReports: false }],
-        //     repositories: ['aspnet/test']
-        // });
-    }
+    /*componentWillUnmount() {
 
-    componentWillUnmount() {
-
-    }
+    }*/
 
     render() {
+        console.log("Rendering teamEditor with members " + this.state.members.length);
         return (
             <div className="clearfix">
                 <div className="section-block">
