@@ -41,15 +41,27 @@ namespace MilestoneTracker.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("{teamName}/members")]
-        public async Task AddTeamMember([FromRoute]string teamName, [FromBody] string member)
+        [HttpPost("{teamName}/members/{memberName}")]
+        public async Task AddTeamMember([FromRoute]string teamName, [FromRoute] string memberName)
         {
             if (!ModelState.IsValid)
             {
                 throw new InvalidOperationException(ModelState.Values.First().Errors?.FirstOrDefault()?.ErrorMessage);
             }
 
-            await this.teamsManager.AddMemberAsync(teamName, new TeamMember { IncludeInReports = false, Name = member }, CancellationToken.None);
+            await this.teamsManager.AddMemberAsync(teamName, new TeamMember { IncludeInReports = false, Name = memberName }, CancellationToken.None);
+        }
+
+        [AllowAnonymous]
+        [HttpDelete("{teamName}/members/{memberName}")]
+        public async Task DeleteTeamMemberAsync([FromRoute]string teamName, [FromRoute]string memberName)
+        {
+            if (!ModelState.IsValid)
+            {
+                throw new InvalidOperationException(ModelState.Values.First().Errors?.FirstOrDefault()?.ErrorMessage);
+            }
+
+            await this.teamsManager.RemoveTeamMemberAsync(teamName, memberName, CancellationToken.None);
         }
 
         private async Task<TeamInfo> GetCurrentTeamAsync(string teamName, CancellationToken token)

@@ -55,5 +55,10 @@ namespace MilestoneTracker.DataManagement.Teams
         {
             throw new NotImplementedException();
         }
+
+        public Task RemoveTeamMemberAsync(string teamName, string memberName, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -119,13 +119,31 @@ namespace MT.DataManagement.Teams.AzureSql
             member.Ensure(nameof(member)).IsNotNull();
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (!await this.context.Members.AnyAsync(m => m.MemberId == member.Name))
+            {
+                this.context.Members.Add(new Member { MemberId = member.Name });
+            }
+
             this.context.TeamMembers.Add(new Model.TeamMember
             {
                 IncludeInReports = member.IncludeInReports,
                 MemberId = member.Name,
                 TeamId = teamName
             });
+
             await this.context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task RemoveTeamMemberAsync(string teamName, string memberName, CancellationToken token)
+        {
+            teamName.Ensure(nameof(teamName)).IsNotNullOrWhitespace();
+            memberName.Ensure(nameof(memberName)).IsNotNullOrWhitespace();
+
+            token.ThrowIfCancellationRequested();
+
+            Model.TeamMember member = await this.context.TeamMembers.SingleOrDefaultAsync(m => m.TeamId == teamName && m.MemberId == memberName);
+            this.context.TeamMembers.Remove(member);
+            await this.context.SaveChangesAsync(token);
         }
 
         private void PopulateRelationProperties(string teamName, TeamInfo result)

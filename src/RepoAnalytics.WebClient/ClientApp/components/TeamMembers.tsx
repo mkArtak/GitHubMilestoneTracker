@@ -44,17 +44,13 @@ export class TeamMembers extends React.Component<ITeamMembersProps, ITeamMembers
             return;
         }
 
-        // todo: Call the controller ADD method here passing in the member alias here
-        fetch("api/Teams/" + this.props.teamName + "/members",
+        fetch("api/Teams/" + this.props.teamName + "/members/" + this.state.newMemberName,
             {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    member: this.state.newMemberName,
-                })
             }).then(() =>
                 this.setState({
                     members: this.state.members.concat([{
@@ -75,12 +71,20 @@ export class TeamMembers extends React.Component<ITeamMembersProps, ITeamMembers
             return;
         }
 
-        // todo: Call the API to remove the member from the current team
-        this.setState({
-            members: this.state.members.filter((_, i) => i !== memberIndex)
-        }, () => {
-            console.log("Removed member " + member.name);
-        });
+        fetch("api/Teams/" + this.props.teamName + "/members/" + member.name,
+            {
+                method: "DELETE",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
+            })
+            .then(response =>
+                this.setState({
+                    members: this.state.members.filter((_, i) => i !== memberIndex)
+                }, () => {
+                    console.log("Removed member " + member.name);
+                }));
     }
 
     private onNewMemberNameChanged(event: any) {
@@ -106,8 +110,6 @@ export class TeamMembers extends React.Component<ITeamMembersProps, ITeamMembers
     }
 
     public render() {
-        console.log("Rendering teamMembers with members " + this.state.members.length);
-
         const _members: ITeamMember[] = this.state.members;
         let nodes: JSX.Element[] = _members.map(member => {
             return (
