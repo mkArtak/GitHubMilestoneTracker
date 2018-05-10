@@ -50,5 +50,15 @@ namespace MilestoneTracker.DataManagement.Teams
 
             return Task.FromResult<TeamInfo>(null);
         }
+
+        public Task AddMemberAsync(string teamName, TeamMember member, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveTeamMemberAsync(string teamName, string memberName, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

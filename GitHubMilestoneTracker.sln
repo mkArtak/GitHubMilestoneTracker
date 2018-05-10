@@ -18,7 +18,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MilestoneTracker.Contracts"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MilestoneTracker.DataManagement.Teams", "src\MIlestoneTracker.FileBasedTeamStore\MilestoneTracker.DataManagement.Teams.csproj", "{24913B96-BA51-4777-9963-77082447F083}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MT.DataManagement.Teams.AzureSql", "src\MT.DataManagement.Teams.AzureSql\MT.DataManagement.Teams.AzureSql.csproj", "{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MT.DataManagement.Teams.AzureSql", "src\MT.DataManagement.Teams.AzureSql\MT.DataManagement.Teams.AzureSql.csproj", "{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoAnalytics.WebClient", "src\RepoAnalytics.WebClient\RepoAnalytics.WebClient.csproj", "{B959A9A0-FD53-452E-ADB9-F70628245FE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +48,10 @@ Global
 		{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B959A9A0-FD53-452E-ADB9-F70628245FE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B959A9A0-FD53-452E-ADB9-F70628245FE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B959A9A0-FD53-452E-ADB9-F70628245FE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B959A9A0-FD53-452E-ADB9-F70628245FE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -56,6 +62,7 @@ Global
 		{08BCAC7D-17EE-47B2-A50F-B1175A0F54B7} = {A30E7D8F-AF6D-4140-9E12-C9F7DED9FBF8}
 		{24913B96-BA51-4777-9963-77082447F083} = {A30E7D8F-AF6D-4140-9E12-C9F7DED9FBF8}
 		{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B} = {A30E7D8F-AF6D-4140-9E12-C9F7DED9FBF8}
+		{B959A9A0-FD53-452E-ADB9-F70628245FE9} = {A30E7D8F-AF6D-4140-9E12-C9F7DED9FBF8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76A04873-24F9-4796-A1AB-FB687405C851}

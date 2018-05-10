@@ -17,6 +17,14 @@
 
         <li class="team-item">
             <a class="team-button" asp-page-handler="Get" asp-page="Index" asp-all-route-data="parms">@team</a>
+            <a class="team-button" asp-page-handler="Get" asp-page="EditTeam" asp-all-route-data="parms">Edit</a>
         </li>
     }
 </ul>
+
+@*<form asp-page="Teams" asp-page-handler="AddTeam">
+    <div class="row">
+        @Html.EditorFor(m => m.NewTeam)
+        <input type="submit" value="Add" />
+    </div>
+</form>*@

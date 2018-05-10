@@ -1,0 +1,56 @@
+﻿@model MilestoneTracker.Contracts.TeamInfo
+<style type="text/css">
+    .member-name {
+    }
+
+    .member-item {
+        display: inline-block;
+        width: 350px;
+    }
+
+    .add-item-block {
+    }
+
+    .inline-inputs {
+        display: inline-flex;
+        width: 100%;
+    }
+
+        .inline-inputs .btn-success {
+            width: 50px;
+        }
+
+        .inline-inputs input {
+            margin-left: 3px;
+            justify-content: flex-start;
+        }
+</style>
+<div class="panel panel-default section-block">
+    <div class="panel-heading"><h4>Members</h4></div>
+    <div class="panel-body">
+        <div class="container-fluid">
+            @{
+                foreach (var member in Model.TeamMembers)
+                {
+                    <div class="row">
+                        <div class="col-sm-9">@member.Name</div>
+                        <div class="col-sm-1">
+                            <input type="button" class="btn btn-warning" id="btnRemoveMember" value="remove" />
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+    <div class="panel-footer clearfix">
+        <div class="add-item-block">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                <div class="inline-inputs">
+                    <input id="txtMemberName" type="text" class="form-control" name="txtMemberName" placeholder="Member name">
+                    <input type="button" id="btnAddMember" name="btnAddMember" class="btn-success" value="Add" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
