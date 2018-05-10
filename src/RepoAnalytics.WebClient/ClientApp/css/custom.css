@@ -45,3 +45,15 @@
     margin-left: 3px;
     justify-content: flex-start;
 }
+
+.field-label{
+    font-weight: bold;
+}
+
+.label-data-block{
+    display: inherit;
+}
+
+.label-data-block input{
+    margin-left: 6px;
+}

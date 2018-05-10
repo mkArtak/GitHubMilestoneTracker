@@ -14,6 +14,7 @@ interface ITeamEditorProps {
 interface ITeamEditorState {
     members: ITeamMember[];
     repositories: string[];
+    defaultMilestones: string;
 }
 
 export class TeamEditor extends React.Component<ITeamEditorProps, ITeamEditorState> {
@@ -22,7 +23,8 @@ export class TeamEditor extends React.Component<ITeamEditorProps, ITeamEditorSta
 
         this.state = {
             members: [],
-            repositories: []
+            repositories: [],
+            defaultMilestones: ""
         };
     }
 
@@ -30,23 +32,37 @@ export class TeamEditor extends React.Component<ITeamEditorProps, ITeamEditorSta
         fetch("api/Teams/" + this.props.teamName)
             .then(response => response.json() as Promise<ITeamInfo>)
             .then(data => {
-                this.setState({ members: data.teamMembers, repositories: data.repositories });
+                this.setState({
+                    members: data.teamMembers,
+                    repositories: data.repositories,
+                    defaultMilestones: data.defaultMilestonesToTrack
+                });
             });
     }
 
-    /*componentWillUnmount() {
-
-    }*/
+    private handleDefaultMilestonesChange(event: any) {
+        let value: string = event.target.value;
+        this.setState({
+            defaultMilestones: value
+        });
+    }
 
     render() {
         console.log("Rendering teamEditor with members " + this.state.members.length);
         return (
-            <div className="clearfix">
-                <div className="section-block">
-                    <TeamMembers teamName={this.props.teamName} members={this.state.members} />
+            <div>
+                <div className="label-data-block">
+                    <label htmlFor="defaultMilestones" className="field-label">Default milestone:</label>
+                    <input type="text" id="defaultMilestones" value={this.state.defaultMilestones} onChange={this.handleDefaultMilestonesChange} />
+                    <button className="btn btn-default"><span className="glyphicons glyphicons-floppy-disk"></span> Save</button>
                 </div>
                 <div className="clearfix">
-                    <TeamRepos teamName={this.props.teamName} repositories={this.state.repositories} />
+                    <div className="section-block">
+                        <TeamMembers teamName={this.props.teamName} members={this.state.members} />
+                    </div>
+                    <div className="section-block">
+                        <TeamRepos teamName={this.props.teamName} repositories={this.state.repositories} />
+                    </div>
                 </div>
             </div>
         );

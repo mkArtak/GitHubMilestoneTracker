@@ -16,3 +16,5 @@
 /src/MT.DataManagement.Teams.AzureSql/obj
 /src/MilestoneTracker/node_modules
 /src/RepoAnalytics.WebClient/.vscode
+/src/.vscode
+/src/MilestoneTracker/Properties/PublishProfiles

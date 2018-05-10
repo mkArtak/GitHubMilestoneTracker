@@ -88,7 +88,7 @@ export class TeamMembers extends React.Component<ITeamMembersProps, ITeamMembers
     }
 
     private onNewMemberNameChanged(event: any) {
-        let newName = event.target.value;
+        let newName: string = event.target.value;
         this.setState({
             newMemberName: newName,
             canAddCurrentMember: !this.memberExists(newName)
