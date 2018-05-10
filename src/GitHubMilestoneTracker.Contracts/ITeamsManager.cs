@@ -36,7 +36,16 @@ namespace MilestoneTracker.Contracts
         /// <param name="teamName">The name of the team to add member to.</param>
         /// <param name="member">The identity of the member.</param>
         /// <param name="cancellationToken">A cancellation token, which will allow the caller to request cancellation.</param>
-        /// <returns></returns>
+        /// <returns>A Task instance representing the requested asynchronous operation.</returns>
         Task AddMemberAsync(string teamName, TeamMember member, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Removes the specified <see cref="memberName"/> from the <see cref="teamName"/> team.
+        /// </summary>
+        /// <param name="teamName">The name of the team to remove the specified member from.</param>
+        /// <param name="memberName">The name of the member to remove from the specified team.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>A Task instance representing the requested asynchronous operation.</returns>
+        Task RemoveTeamMemberAsync(string teamName, string memberName, CancellationToken token);
     }
 }
