@@ -76,11 +76,13 @@ namespace GitHub.Client
 
             IList<WorkDTO> result = new List<WorkDTO>();
             double workLeft = totalAmountOfWork;
+            int numberOfClosedIssues = 0;
             do
             {
-                double amountOfWorkClosedOnDate = teamIssues
-                    .Where(item => item.State.Value == ItemState.Closed && item.ClosedAt.HasValue && item.ClosedAt.Value.Date == currentDate)
-                    .Sum(item => GetIssueCost(item));
+                var closedIssuesQuery = teamIssues
+                    .Where(item => item.State.Value == ItemState.Closed && item.ClosedAt.HasValue && item.ClosedAt.Value.Date == currentDate);
+                numberOfClosedIssues += closedIssuesQuery.Count();
+                double amountOfWorkClosedOnDate = closedIssuesQuery.Sum(item => GetIssueCost(item));
                 if (amountOfWorkClosedOnDate > 0)
                 {
                     result.Add(new WorkDTO
@@ -100,7 +102,7 @@ namespace GitHub.Client
                 DaysOfWorkLeft = workLeft,
             });
 
-            return new BurndownDTO { WorkData = result, TotalNumberOfIssues = teamIssues.Count };
+            return new BurndownDTO { WorkData = result, TotalNumberOfIssues = teamIssues.Count, NumberOfIssuesLeft = teamIssues.Count - numberOfClosedIssues };
         }
 
         private static IEnumerable<string> GetMembersToIncludeInReport(TeamInfo team)
