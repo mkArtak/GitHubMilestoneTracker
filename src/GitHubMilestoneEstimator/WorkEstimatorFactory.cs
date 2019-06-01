@@ -1,7 +1,6 @@
 ﻿using AM.Common.Validation;
 using MilestoneTracker.Contracts;
 using Octokit;
-using System.Collections.Generic;
 
 namespace GitHub.Client
 {
