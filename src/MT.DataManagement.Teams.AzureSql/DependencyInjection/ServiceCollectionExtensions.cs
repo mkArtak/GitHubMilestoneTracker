@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using MilestoneTracker.Contracts;
+using MT.DataManagement.Teams.AzureSql;
 
-namespace MT.DataManagement.Teams.AzureSql.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {

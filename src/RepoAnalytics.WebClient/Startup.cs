@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using GitHub.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -10,7 +6,6 @@ using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MilestoneTracker.Options;
-using MT.DataManagement.Teams.AzureSql.DependencyInjection;
 
 namespace RepoAnalytics.WebClient
 {
@@ -43,7 +38,11 @@ namespace RepoAnalytics.WebClient
             services.AddOptions();
             services.Configure<GitHubAuthOptions>(this.Configuration.GetSection("GitHubAuth"));
 
+
             services.AddTeams(this.Configuration);
+            //services.AddTransient<ITeamsManager, InMemoryTeamsManager>();
+            //services.AddTransient<IUserTeamsManager, InMemoryTeamsManager>();
+
             services.AddSingleton<WorkEstimatorFactory>();
             services.AddAuthentication(options =>
             {

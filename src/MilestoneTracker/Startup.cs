@@ -2,11 +2,11 @@ using GitHub.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MilestoneTracker.Contracts;
+using MilestoneTracker.Model;
 using MilestoneTracker.Options;
-using MT.DataManagement.Teams.AzureSql.DependencyInjection;
 
 namespace MilestoneTracker
 {
@@ -26,10 +26,10 @@ namespace MilestoneTracker
 
             services.AddOptions();
             services.Configure<GitHubAuthOptions>(this.Configuration.GetSection("GitHubAuth"));
-            //services.AddTeams(this.Configuration);
-            //services.AddUserTeams(this.Configuration);
 
-            services.AddTeams(this.Configuration);
+            //services.AddTeams(this.Configuration);
+            services.AddTransient<ITeamsManager, InMemoryTeamsManager>();
+            services.AddTransient<IUserTeamsManager, InMemoryTeamsManager>();
             services.AddSingleton<WorkEstimatorFactory>();
             services.AddAuthentication(options =>
             {

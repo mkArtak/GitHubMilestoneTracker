@@ -58,7 +58,7 @@ namespace MT.DataManagement.Teams.AzureSql
                 {
                     team.Members.Add(new Member { MemberId = member.Name });
                 }
-                // TODO: Rework this part to allow storing the "INcludeInReporting" field for members.
+                // TODO: Rework this part to allow storing the "IncludeInReporting" field for members.
             }
 
             await this.context.Teams.AddAsync(team, cancellationToken);
