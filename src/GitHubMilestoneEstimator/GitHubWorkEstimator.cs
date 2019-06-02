@@ -64,14 +64,16 @@ namespace GitHub.Client
                 request,
                 issue => issue.Assignee != null
                     && membersToIncludeInReport.Any(memberName => String.Equals(memberName, issue.Assignee.Login, StringComparison.OrdinalIgnoreCase))
-                //&& this.GetIssueCost(issue) != 0
+                    && this.GetIssueCost(issue) != 0
                 );
+            /// TODO: Remove this later
+            //teamIssues = teamIssues.Where(item => !item.ClosedAt.HasValue || item.ClosedAt.Value >= DateTimeOffset.UtcNow.AddDays(-40)).ToList();
 
             double totalAmountOfWork = teamIssues.Sum(item => this.GetIssueCost(item));
 
             DateTimeOffset firstClosedDate = GetDateOfFirstClosedIssue(teamIssues, team.FixedIssuesIndicatingLabel);
 
-            DateTime currentDate = firstClosedDate.Date;
+            DateTimeOffset currentDate = firstClosedDate.Date;
             IList<WorkDTO> result = new List<WorkDTO>();
             double workLeft = totalAmountOfWork;
             int numberOfClosedIssues = 0;

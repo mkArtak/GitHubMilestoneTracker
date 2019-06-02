@@ -4,7 +4,7 @@ namespace MilestoneTracker.Contracts.DTO
 {
     public class WorkDTO
     {
-        public DateTime Date { get; set; }
+        public DateTimeOffset Date { get; set; }
 
         public double DaysOfWorkLeft { get; set; }
     }
