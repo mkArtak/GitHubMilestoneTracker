@@ -11,12 +11,16 @@ namespace MilestoneTracker.Model
     {
         private TeamInfo _team = new TeamInfo
         {
-            CostLabels = new[] { new CostMarker { Name = "area-mvc", Factor = 1 }, new CostMarker { Name = "area-blazor", Factor = 1 } },
+            CostLabels = new[] {
+                new CostMarker { Name = "area-mvc", Factor = 1 },
+                new CostMarker { Name = "area-blazor", Factor = 1 }
+            },
+            FixedIssuesIndicatingLabel = "Done",
             DefaultMilestonesToTrack = "3.0.0-preview6",
             Name = "ASP.NET Core MVC",
             Organization = "aspnet",
             Repositories = new[] { "aspnet/AspNetCore" },
-            TeamMembers = new[] { "mkArtakMSFT", "ajaybharghavb", "javiercn", "NTaylorMullen", "pranavkm", "dougbu", "ryanbrandenburg" }
+            TeamMembers = new[] { "mkArtakMSFT", "ajaybhargavb", "javiercn", "NTaylorMullen", "pranavkm", "dougbu", "ryanbrandenburg", "rynowak", "SteveSandersonMS" }
             .Select(name => new TeamMember { Name = name, IncludeInReports = true }).Append(new TeamMember { Name = "mkArtak", IncludeInReports = false })
             .ToArray()
         };

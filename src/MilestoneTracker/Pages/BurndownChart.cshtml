@@ -28,7 +28,7 @@
 
     function LoadData() {
         $.ajax({
-            url: '@Html.Raw(Url.Action("GetBurndownDataAsync", "Burndown", new { teamName= Model.TeamName, milestone=Model.Milestone }))',
+            url: '@Html.Raw(Url.Action("GetBurndownDataAsync", "Burndown", new { teamName= Model.TeamName, milestone=Model.Milestone, label = Model.LabelsFilter }))',
             type: 'GET',
             dataType: 'json',
             success: function (data, err) {

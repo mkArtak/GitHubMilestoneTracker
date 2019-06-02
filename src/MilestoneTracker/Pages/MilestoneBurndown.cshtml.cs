@@ -12,6 +12,9 @@ namespace MilestoneTracker.Pages
         [FromQuery]
         public string TeamName { get; set; }
 
+        [FromQuery]
+        public string Label { get; set; }
+
         public BurndownChartModel BurndownModel { get; set; }
 
         public void OnGet()
@@ -19,7 +22,8 @@ namespace MilestoneTracker.Pages
             this.BurndownModel = new BurndownChartModel
             {
                 Milestone = this.Milestone,
-                TeamName = this.TeamName
+                TeamName = this.TeamName,
+                LabelsFilter = this.Label
             };
         }
     }

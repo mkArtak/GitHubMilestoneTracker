@@ -13,5 +13,7 @@
         public string DefaultMilestonesToTrack { get; set; }
 
         public string[] Repositories { get; set; }
+
+        public string FixedIssuesIndicatingLabel { get; set; }
     }
 }

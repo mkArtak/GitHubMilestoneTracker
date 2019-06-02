@@ -7,5 +7,7 @@ namespace MilestoneTracker.Model
         public string Milestone { get; set; }
 
         public string TeamName { get; set; }
+
+        public string LabelsFilter { get; set; }
     }
 }

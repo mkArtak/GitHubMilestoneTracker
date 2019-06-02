@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using MilestoneTracker.Contracts;
 using MilestoneTracker.Contracts.DTO;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace MilestoneTracker.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetBurndownDataAsync([FromQuery]string teamName, [FromQuery]string milestone)
+        public async Task<IActionResult> GetBurndownDataAsync([FromQuery]string teamName, [FromQuery]string milestone, [FromQuery]string label)
         {
             if (!ModelState.IsValid)
             {
@@ -42,7 +43,13 @@ namespace MilestoneTracker.Controllers
             IWorkEstimator workEstimator = await GetWorkEstimatorAsync(teamName, CancellationToken.None);
 
             TeamInfo team = await this.GetCurrentTeamAsync(teamName, CancellationToken.None);
-            BurndownDTO burnDownData = await workEstimator.GetBurndownDataAsync(team, milestone, CancellationToken.None);
+            IEnumerable<string> labels = null;
+            if (label != null)
+            {
+                labels = label.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(item => item.Trim()).ToArray();
+            }
+
+            BurndownDTO burnDownData = await workEstimator.GetBurndownDataAsync(team, milestone, labels, CancellationToken.None);
 
             return new JsonResult(burnDownData);
         }

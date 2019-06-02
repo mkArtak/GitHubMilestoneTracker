@@ -21,6 +21,7 @@ namespace MilestoneTracker.Pages
 
         private readonly WorkEstimatorFactory workEstimatorFactory;
         private readonly Lazy<IEnumerable<string>> lazyMilestonesLoader;
+        private readonly Lazy<IEnumerable<string>> lazyLabelsLoader;
         private readonly ITeamsManager teamsManager;
         private readonly IUserTeamsManager userTeamsManager;
         private TeamInfo currentTeam = null;
@@ -35,6 +36,11 @@ namespace MilestoneTracker.Pages
 
         [FromQuery]
         public string TeamName { get; set; }
+
+        [FromQuery]
+        public string Label { get; set; }
+
+        public IEnumerable<string> Labels { get => this.lazyLabelsLoader.Value; }
 
         public IEnumerable<string> Milestones { get => this.lazyMilestonesLoader.Value; }
 
@@ -54,6 +60,14 @@ namespace MilestoneTracker.Pages
                 return this.Milestone?
                     .Split(milestoneSeparatorCharacter, StringSplitOptions.RemoveEmptyEntries)
                     .Select(item => item.Trim());
+            });
+
+            this.lazyLabelsLoader = new Lazy<IEnumerable<string>>(() =>
+            {
+                if (this.Label == null)
+                    return null;
+
+                return this.Label.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(item => item.Trim()).ToArray();
             });
         }
 
@@ -100,7 +114,7 @@ namespace MilestoneTracker.Pages
                 {
                     tasks.Add(Task.Run(async () =>
                     {
-                        IEnumerable<WorkItem> issues = await workEstimator.GetAmountOfWorkAsync(currentTeam, milestone, cancellationToken);
+                        IEnumerable<WorkItem> issues = await workEstimator.GetAmountOfWorkAsync(currentTeam, milestone, this.Labels, cancellationToken);
                         IEnumerable<string> members = currentTeam.TeamMembers?.Where(item => item.IncludeInReports)?.Select(item => item.Name)?.Union(new string[] { "Unassigned" });
                         if (members == null)
                         {
