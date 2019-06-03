@@ -108,6 +108,7 @@ namespace MilestoneTracker.Pages
             {
                 TeamInfo currentTeam = await this.GetCurrentTeamAsync(cancellationToken);
                 this.Work.TeamName = currentTeam.Name;
+                this.Work.Label = this.Label;
                 object syncRoot = new object();
 
                 foreach (var milestone in this.Milestones)

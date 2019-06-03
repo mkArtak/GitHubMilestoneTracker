@@ -55,6 +55,8 @@ namespace MilestoneTracker.Model
 
         public string TeamName { get; set; }
 
+        public string Label { get; set; }
+
         public WorkDataViewModel()
         {
             this.totalWorkAmountCache = new Lazy<double>(() =>

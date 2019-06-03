@@ -7,6 +7,7 @@
     IDictionary<string, double> sumByMilestone = new Dictionary<string, double>();
 }
 <style type="text/css">
+
     .column-header {
         font-size: 1.2em;
         font-weight: bolder;
@@ -88,6 +89,11 @@
                     { "teamName", Model.TeamName },
                     { "milestone", milestone },
                 };
+
+                if (Model.Label != null)
+                {
+                    parms.Add("label", Model.Label);
+                }
 
                 <td class="row-bottom-item row-item">
                     <a asp-page="MilestoneBurndown" asp-all-route-data="parms">
