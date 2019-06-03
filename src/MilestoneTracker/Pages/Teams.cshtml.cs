@@ -27,6 +27,11 @@ namespace MilestoneTracker.Pages
         [Authorize]
         public async Task<IActionResult> OnGet()
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Redirect("~/signin");
+            }
+
             IEnumerable<string> teams = await this.userTeamsManager.GetUserTeamsAsync(User.Identity.Name, CancellationToken.None);
             this.Teams = teams;
             return Page();
