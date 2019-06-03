@@ -5,11 +5,16 @@
 }
 
 <style type="text/css">
+
     .milestone-name {
         font-weight: bolder;
     }
 </style>
-<h2><span class="milestone-name">@Model.Milestone</span> Burndown for</h2>
-<h3>@Model.TeamName</h3>
+<h2><span class="milestone-name">@Model.Milestone</span> burndown for <span class="milestone-name">@Model.TeamName</span></h2>
+
+@if (Model.Label != null)
+{
+    <div>Filtered by <span style="font-weight: bolder">@Model.Label</span> labels</div>
+}
 
 @Html.Partial("BurndownChart", Model.BurndownModel)
