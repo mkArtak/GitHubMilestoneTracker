@@ -5,7 +5,6 @@ using MilestoneTracker.Contracts.DTO;
 using Octokit;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,17 +26,7 @@ namespace GitHub.Client
         {
             milestone.Ensure(nameof(milestone)).IsNotNullOrWhitespace();
 
-            SearchIssuesRequest request = new SearchIssuesRequest
-            {
-                Is = new[] { IssueIsQualifier.Issue, IssueIsQualifier.Open },
-                Milestone = milestone,
-                Labels = labelsFilter
-            };
-            request.ApplyRepositoriesFilter(team.Repositories);
-            IEnumerable<string> membersToIncludeInReport = GetMembersToIncludeInReport(team);
-            IList<Issue> searchResults = await this.RetrieveAllResultsAsync(
-                request,
-                issue => (issue.Assignee == null || membersToIncludeInReport.Contains(issue.Assignee.Login)));
+            var searchResults = await QueryIssuesAsync(team, milestone, true, labelsFilter);
             return searchResults
                 .Select(item => new WorkItem
                 {
@@ -49,29 +38,11 @@ namespace GitHub.Client
 
         public async Task<BurndownDTO> GetBurndownDataAsync(TeamInfo team, string milestone, IEnumerable<string> labelsFilter, CancellationToken cancellationToken)
         {
-            SearchIssuesRequest request = new SearchIssuesRequest
-            {
-                Is = new[] { IssueIsQualifier.Issue },
-                Milestone = milestone,
-                Labels = labelsFilter
-            };
+            IList<Issue> allIssues = await QueryIssuesAsync(team, milestone, false, labelsFilter);
 
-            request.ApplyRepositoriesFilter(team.Repositories);
+            double totalAmountOfWork = allIssues.Sum(item => this.GetIssueCost(item));
 
-            IEnumerable<string> membersToIncludeInReport = GetMembersToIncludeInReport(team);
-
-            IList<Issue> teamIssues = await this.RetrieveAllResultsAsync(
-                request,
-                issue => issue.Assignee != null
-                    && membersToIncludeInReport.Any(memberName => String.Equals(memberName, issue.Assignee.Login, StringComparison.OrdinalIgnoreCase))
-                    && this.GetIssueCost(issue) != 0
-                );
-            /// TODO: Remove this later
-            //teamIssues = teamIssues.Where(item => !item.ClosedAt.HasValue || item.ClosedAt.Value >= DateTimeOffset.UtcNow.AddDays(-40)).ToList();
-
-            double totalAmountOfWork = teamIssues.Sum(item => this.GetIssueCost(item));
-
-            DateTimeOffset firstClosedDate = GetDateOfFirstClosedIssue(teamIssues, team.FixedIssuesIndicatingLabel);
+            DateTimeOffset firstClosedDate = GetDateOfFirstClosedIssue(allIssues, team.FixedIssuesIndicatingLabel);
 
             DateTimeOffset currentDate = firstClosedDate.Date;
             IList<WorkDTO> result = new List<WorkDTO>();
@@ -79,10 +50,10 @@ namespace GitHub.Client
             int numberOfClosedIssues = 0;
             do
             {
-                var closedIssuesQuery = teamIssues
+                var issuesClosedOnGivenDate = allIssues
                     .Where(item => item.State.Value == ItemState.Closed && item.ClosedAt.HasValue && item.ClosedAt.Value.Date == currentDate);
-                numberOfClosedIssues += closedIssuesQuery.Count();
-                double amountOfWorkClosedOnDate = closedIssuesQuery.Sum(item => GetIssueCost(item));
+                numberOfClosedIssues += issuesClosedOnGivenDate.Count();
+                double amountOfWorkClosedOnDate = issuesClosedOnGivenDate.Sum(item => GetIssueCost(item));
                 if (amountOfWorkClosedOnDate > 0)
                 {
                     result.Add(new WorkDTO
@@ -102,7 +73,42 @@ namespace GitHub.Client
                 DaysOfWorkLeft = workLeft,
             });
 
-            return new BurndownDTO { WorkData = result, TotalNumberOfIssues = teamIssues.Count, NumberOfIssuesLeft = teamIssues.Count - numberOfClosedIssues };
+            return new BurndownDTO { WorkData = result, TotalNumberOfIssues = allIssues.Count, NumberOfIssuesLeft = allIssues.Count - numberOfClosedIssues };
+        }
+
+        private async Task<IList<Issue>> QueryIssuesAsync(TeamInfo team, string milestone, bool queryForOpenIssuesOnly, IEnumerable<string> labelsFilter)
+        {
+            SearchIssuesRequest request = new SearchIssuesRequest
+            {
+                Is = queryForOpenIssuesOnly ? new[] { IssueIsQualifier.Issue, IssueIsQualifier.Open } : new[] { IssueIsQualifier.Issue },
+                Milestone = milestone,
+                Labels = labelsFilter
+            };
+
+            request.ApplyRepositoriesFilter(team.Repositories);
+
+            IEnumerable<string> membersToIncludeInReport = GetMembersToIncludeInReport(team);
+
+            IList<Issue> result = await this.RetrieveAllResultsAsync(
+                request,
+                issue => IssueBelongsToTeam(team, issue)
+                    && (issue.Assignee == null
+                        || membersToIncludeInReport.Any(memberName => String.Equals(memberName, issue.Assignee.Login, StringComparison.OrdinalIgnoreCase)))
+                );
+
+            /// TODO: Remove this later
+            //teamIssues = teamIssues.Where(item => !item.ClosedAt.HasValue || item.ClosedAt.Value >= new DateTimeOffset(2019, 5, 27, 0, 0, 0, TimeSpan.Zero)).ToList();
+            return result;
+        }
+
+        private bool IssueBelongsToTeam(TeamInfo team, Issue issue)
+        {
+            if (team.AreaLabels == null || !team.AreaLabels.Any())
+            {
+                return true;
+            }
+
+            return issue.Labels.Any(lbl => team.AreaLabels.Contains(lbl.Name));
         }
 
         private static DateTimeOffset GetDateOfFirstClosedIssue(IList<Issue> teamIssues, string fixedIssueIndicatingLabel)

@@ -17,6 +17,7 @@ namespace MilestoneTracker.Model
             },
             FixedIssuesIndicatingLabel = "Done",
             DefaultMilestonesToTrack = "3.0.0-preview6",
+            AreaLabels = new[] { "area-mvc", "area-blazor" },
             Name = "ASP.NET Core MVC",
             Organization = "aspnet",
             Repositories = new[] { "aspnet/AspNetCore" },
