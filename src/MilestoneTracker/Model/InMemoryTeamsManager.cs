@@ -21,8 +21,19 @@ namespace MilestoneTracker.Model
             Name = "ASP.NET Core MVC",
             Organization = "aspnet",
             Repositories = new[] { "aspnet/AspNetCore" },
-            TeamMembers = new[] { "mkArtakMSFT", "ajaybhargavb", "javiercn", "NTaylorMullen", "pranavkm", "dougbu", "ryanbrandenburg", "rynowak", "SteveSandersonMS" }
-            .Select(name => new TeamMember { Name = name, IncludeInReports = true }).Append(new TeamMember { Name = "mkArtak", IncludeInReports = false })
+            LabelsToExclude = new[] { "Validation", "duplicate" },
+            TeamMembers = new[] {
+                "mkArtakMSFT",
+                "ajaybhargavb",
+                "javiercn",
+                "NTaylorMullen",
+                "pranavkm",
+                "dougbu",
+                "ryanbrandenburg",
+                "rynowak",
+                "SteveSandersonMS" }
+            .Select(name => new TeamMember { Name = name, IncludeInReports = true })
+            .Append(new TeamMember { Name = "mkArtak", IncludeInReports = false })
             .ToArray()
         };
 

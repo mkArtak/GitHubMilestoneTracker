@@ -26,7 +26,7 @@ namespace GitHub.Client
         {
             query.Ensure(nameof(query)).IsNotNull();
 
-            var searchResults = await QueryIssuesAsync(query.Team, query.Milestone, true, query.FilterLabels);
+            var searchResults = await QueryIssuesAsync(query, true);
             return searchResults
                 .Select(item => new WorkItem
                 {
@@ -38,7 +38,7 @@ namespace GitHub.Client
 
         public async Task<BurndownDTO> GetBurndownDataAsync(IssuesQuery query, CancellationToken cancellationToken)
         {
-            IList<Issue> allIssues = await QueryIssuesAsync(query.Team, query.Milestone, false, query.FilterLabels);
+            IList<Issue> allIssues = await QueryIssuesAsync(query, false);
 
             double totalAmountOfWork = allIssues.Sum(item => this.GetIssueCost(item));
 
@@ -76,22 +76,30 @@ namespace GitHub.Client
             return new BurndownDTO { WorkData = result, TotalNumberOfIssues = allIssues.Count, NumberOfIssuesLeft = allIssues.Count - numberOfClosedIssues };
         }
 
-        private async Task<IList<Issue>> QueryIssuesAsync(TeamInfo team, string milestone, bool queryForOpenIssuesOnly, IEnumerable<string> labelsFilter)
+        private async Task<IList<Issue>> QueryIssuesAsync(IssuesQuery query, bool queryForOpenIssuesOnly)
         {
             SearchIssuesRequest request = new SearchIssuesRequest
             {
                 Is = queryForOpenIssuesOnly ? new[] { IssueIsQualifier.Issue, IssueIsQualifier.Open } : new[] { IssueIsQualifier.Issue },
-                Milestone = milestone,
-                Labels = labelsFilter
+                Milestone = query.Milestone,
+                Labels = query.FilterLabels
             };
 
-            request.ApplyRepositoriesFilter(team.Repositories);
+            if (query.Team.LabelsToExclude != null && query.Team.LabelsToExclude.Any())
+            {
+                request.Exclusions = new SearchIssuesRequestExclusions
+                {
+                    Labels = query.Team.LabelsToExclude
+                };
+            }
 
-            IEnumerable<string> membersToIncludeInReport = GetMembersToIncludeInReport(team);
+            request.ApplyRepositoriesFilter(query.Team.Repositories);
+
+            IEnumerable<string> membersToIncludeInReport = GetMembersToIncludeInReport(query.Team);
 
             IList<Issue> result = await this.RetrieveAllResultsAsync(
                 request,
-                issue => IssueBelongsToTeam(team, issue)
+                issue => IssueBelongsToTeam(query.Team, issue)
                     && (issue.Assignee == null
                         || membersToIncludeInReport.Any(memberName => String.Equals(memberName, issue.Assignee.Login, StringComparison.OrdinalIgnoreCase)))
                 );
