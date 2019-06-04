@@ -71,7 +71,7 @@ namespace MilestoneTracker.Pages
             });
         }
 
-        public async Task<IActionResult> OnGet()
+        public async Task<IActionResult> OnGet(CancellationToken cancellationToken)
         {
             if (this.TeamName == null)
             {
@@ -80,20 +80,20 @@ namespace MilestoneTracker.Pages
 
             if (this.Milestone == null)
             {
-                await this.GetCurrentTeamAsync(CancellationToken.None);
+                await this.GetCurrentTeamAsync(cancellationToken);
             }
 
             if (this.Milestones != null)
             {
-                TeamInfo team = await this.GetCurrentTeamAsync(CancellationToken.None);
+                TeamInfo team = await this.GetCurrentTeamAsync(cancellationToken);
                 if (team == null)
                 {
                     return Redirect("/Teams");
                 }
 
-                IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(team, CancellationToken.None);
+                IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(team, cancellationToken);
 
-                await this.RetrieveWorkloadAsync(workEstimator, CancellationToken.None);
+                await this.RetrieveWorkloadAsync(workEstimator, cancellationToken);
             }
 
             return Page();
@@ -115,7 +115,14 @@ namespace MilestoneTracker.Pages
                 {
                     tasks.Add(Task.Run(async () =>
                     {
-                        IEnumerable<WorkItem> issues = await workEstimator.GetAmountOfWorkAsync(currentTeam, milestone, this.Labels, cancellationToken);
+                        IEnumerable<WorkItem> issues = await workEstimator.GetAmountOfWorkAsync(
+                            new IssuesQuery
+                            {
+                                Team = currentTeam,
+                                Milestone = milestone,
+                                FilterLabels = this.Labels
+                            },
+                            cancellationToken);
                         IEnumerable<string> members = currentTeam.TeamMembers?.Where(item => item.IncludeInReports)?.Select(item => item.Name)?.Union(new string[] { "Unassigned" });
                         if (members == null)
                         {
@@ -154,7 +161,7 @@ namespace MilestoneTracker.Pages
         {
             if (this.currentTeam == null)
             {
-                this.currentTeam = await this.userTeamsManager.GetTeamInfoAsync(User.Identity.Name, this.TeamName, CancellationToken.None);
+                this.currentTeam = await this.userTeamsManager.GetTeamInfoAsync(User.Identity.Name, this.TeamName, token);
             }
 
             return this.currentTeam;

@@ -22,11 +22,11 @@ namespace GitHub.Client
             this.options = options.Ensure(nameof(options)).IsNotNull().Value;
         }
 
-        public async Task<IEnumerable<WorkItem>> GetAmountOfWorkAsync(TeamInfo team, string milestone, IEnumerable<string> labelsFilter, CancellationToken cancellationToken)
+        public async Task<IEnumerable<WorkItem>> GetAmountOfWorkAsync(IssuesQuery query, CancellationToken cancellationToken)
         {
-            milestone.Ensure(nameof(milestone)).IsNotNullOrWhitespace();
+            query.Ensure(nameof(query)).IsNotNull();
 
-            var searchResults = await QueryIssuesAsync(team, milestone, true, labelsFilter);
+            var searchResults = await QueryIssuesAsync(query.Team, query.Milestone, true, query.FilterLabels);
             return searchResults
                 .Select(item => new WorkItem
                 {
@@ -36,13 +36,13 @@ namespace GitHub.Client
                 }).ToList();
         }
 
-        public async Task<BurndownDTO> GetBurndownDataAsync(TeamInfo team, string milestone, IEnumerable<string> labelsFilter, CancellationToken cancellationToken)
+        public async Task<BurndownDTO> GetBurndownDataAsync(IssuesQuery query, CancellationToken cancellationToken)
         {
-            IList<Issue> allIssues = await QueryIssuesAsync(team, milestone, false, labelsFilter);
+            IList<Issue> allIssues = await QueryIssuesAsync(query.Team, query.Milestone, false, query.FilterLabels);
 
             double totalAmountOfWork = allIssues.Sum(item => this.GetIssueCost(item));
 
-            DateTimeOffset firstClosedDate = GetDateOfFirstClosedIssue(allIssues, team.FixedIssuesIndicatingLabel);
+            DateTimeOffset firstClosedDate = GetDateOfFirstClosedIssue(allIssues, query.Team.FixedIssuesIndicatingLabel);
 
             DateTimeOffset currentDate = firstClosedDate.Date;
             IList<WorkDTO> result = new List<WorkDTO>();

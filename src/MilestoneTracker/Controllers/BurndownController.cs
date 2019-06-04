@@ -33,7 +33,7 @@ namespace MilestoneTracker.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetBurndownDataAsync([FromQuery]string teamName, [FromQuery]string milestone, [FromQuery]string label)
+        public async Task<IActionResult> GetBurndownDataAsync([FromQuery]string teamName, [FromQuery]string milestone, [FromQuery]string label, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -49,7 +49,13 @@ namespace MilestoneTracker.Controllers
                 labels = label.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(item => item.Trim()).ToArray();
             }
 
-            BurndownDTO burnDownData = await workEstimator.GetBurndownDataAsync(team, milestone, labels, CancellationToken.None);
+            BurndownDTO burnDownData = await workEstimator.GetBurndownDataAsync(
+                new IssuesQuery
+                {
+                    Team = team,
+                    Milestone = milestone,
+                    FilterLabels = labels
+                }, cancellationToken);
 
             return new JsonResult(burnDownData);
         }
