@@ -13,15 +13,10 @@ namespace MilestoneTracker.Controllers
     [Authorize]
     public class TeamsController : Controller
     {
-        private readonly IUserTeamsManager userTeamsManager;
         private readonly ITeamsManager teamsManager;
-        private TeamInfo currentTeam;
 
-        public TeamsController(
-            ITeamsManager teamsManager,
-            IUserTeamsManager userTeamsManager)
+        public TeamsController(ITeamsManager teamsManager)
         {
-            this.userTeamsManager = userTeamsManager.Ensure(nameof(userTeamsManager)).IsNotNull().Value;
             this.teamsManager = teamsManager.Ensure(nameof(teamsManager)).IsNotNull().Value;
         }
 
@@ -40,12 +35,8 @@ namespace MilestoneTracker.Controllers
 
         private async Task<TeamInfo> GetCurrentTeamAsync(string teamName, CancellationToken token)
         {
-            if (this.currentTeam == null)
-            {
-                this.currentTeam = await this.teamsManager.GetTeamInfoAsync(teamName, token);
-            }
-
-            return this.currentTeam;
+            TeamInfo result = await this.teamsManager.GetTeamInfoAsync(teamName, token);
+            return result;
         }
     }
 }
