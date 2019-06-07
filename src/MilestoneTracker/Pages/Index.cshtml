@@ -28,7 +28,7 @@
     <div class="col-md-3">
         @if (Model.Work != null)
         {
-            @Html.Partial("WorkStatus", Model.Work)
+            <partial name="~/Pages/WorkStatus.cshtml" for="Work" />
         }
     </div>
 </div>
