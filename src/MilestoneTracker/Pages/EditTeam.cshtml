@@ -24,6 +24,7 @@
 </script>
 
 <style type="text/css">
+
     .section-block {
         min-width: 400px;
         width: 40%;
@@ -38,6 +39,10 @@
 </style>
 <div class="team-name"><h2>@Model.Team.Name</h2></div>
 <div class="clearfix">
-    <div class="section-block">@Html.Partial("Views/EditTeamMembers", Model.Team)</div>
-    <div class="section-block">@Html.Partial("Views/EditTeamRepos", Model.Team)</div>
+    <div class="section-block">
+        <partial name="Views/EditTeamMembers" for="Team" />
+    </div>
+    <div class="section-block">
+        <partial name="Views/EditTeamRepos" fallback-name="Team" />
+    </div>
 </div>

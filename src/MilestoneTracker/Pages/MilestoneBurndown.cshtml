@@ -17,4 +17,4 @@
     <div>Filtered by <span style="font-weight: bolder">@Model.Label</span> labels</div>
 }
 
-@Html.Partial("BurndownChart", Model.BurndownModel)
+<partial name="BurndownChart" for="BurndownModel" />
