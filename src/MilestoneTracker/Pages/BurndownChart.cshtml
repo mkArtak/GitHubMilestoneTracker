@@ -3,6 +3,15 @@
 @*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
+
+@{
+    var baseQuery = new
+    {
+        teamName = Model.TeamName,
+        milestone = Model.Milestone,
+        label = Model.LabelsFilter
+    };
+}
 <style type="text/css">
 
     .chart-area {
@@ -15,9 +24,21 @@
     .total-issues {
         font-weight: bold;
     }
+
+    .options {
+        border: 1px solid black;
+        padding-top: 1em;
+        padding-bottom: 1em;
+    }
 </style>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <div id="chart_div" class="chart-area"></div>
+
+<div class="options">
+    <span class="text-primary">Include investigations: </span>
+    <input type="checkbox" id="chkIncludeInvestigations" checked='@(Model.IncludeInvestigations?"checked":"")' onchange="LoadData()" />
+</div>
+<br />
 <div class="total-issues">Total number of issues: <span id="totalIssues">[loading...]</span></div>
 <div class="total-issues">Open issues: <span id="openIssues">[loading...]</span></div>
 <script type="text/javascript">
@@ -27,15 +48,12 @@
     google.charts.setOnLoadCallback(LoadData);
 
     function LoadData() {
-        @{
-            var query = new {
-                teamName = Model.TeamName,
-                milestone = Model.Milestone,
-                label = Model.LabelsFilter,
-                includeInvestigations = Model.IncludeInvestigations};
-            }
+        var baseDataUrl = '@Html.Raw(Url.Action("GetBurndownDataAsync", "Burndown", baseQuery))';
+        var includeInvestigations = $('#chkIncludeInvestigations').is(':checked');
+
+        var dataQueryUrl = baseDataUrl + '&includeInvestigations=' + includeInvestigations;
         $.ajax({
-            url: '@Html.Raw(Url.Action("GetBurndownDataAsync", "Burndown", query))',
+            url: dataQueryUrl,
             type: 'GET',
             dataType: 'json',
             success: function (data, err) {
