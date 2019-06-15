@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace MilestoneTracker.Model
+﻿namespace MilestoneTracker.Model
 {
     public class BurndownChartModel
     {
@@ -9,5 +7,7 @@ namespace MilestoneTracker.Model
         public string TeamName { get; set; }
 
         public string LabelsFilter { get; set; }
+
+        public bool IncludeInvestigations { get; set; }
     }
 }

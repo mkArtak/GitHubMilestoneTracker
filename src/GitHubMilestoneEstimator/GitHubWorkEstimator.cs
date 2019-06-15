@@ -41,34 +41,38 @@ namespace GitHub.Client
 
         public async Task<BurndownDTO> GetBurndownDataAsync(IssuesQuery query, CancellationToken cancellationToken)
         {
-            IList<Issue> allIssues = await QueryIssuesAsync(query, false);
+            IList<Issue> allIssues = (await QueryIssuesToConsider(query)).ToList();
 
             double totalAmountOfWork = allIssues.Sum(item => this.GetIssueCost(item));
-
-            DateTimeOffset firstClosedDate = GetDateOfFirstClosedIssue(allIssues, query.Team.FixedIssuesIndicatingLabel);
-
-            DateTimeOffset currentDate = firstClosedDate.Date;
-            IList<WorkDTO> result = new List<WorkDTO>();
+            var allClosedIssues = allIssues.Where(item => item.State.Value == ItemState.Closed).ToList();
+            DateTimeOffset currentDate = GetDateOfFirstClosedIssue(allClosedIssues).UtcDateTime.Date;
             double workLeft = totalAmountOfWork;
             int numberOfClosedIssues = 0;
+
+            IList<WorkDTO> result = new List<WorkDTO>();
             do
             {
-                var issuesClosedOnGivenDate = allIssues
-                    .Where(item => item.State.Value == ItemState.Closed && item.ClosedAt.HasValue && item.ClosedAt.Value.Date == currentDate);
-                numberOfClosedIssues += issuesClosedOnGivenDate.Count();
-                double amountOfWorkClosedOnDate = issuesClosedOnGivenDate.Sum(item => GetIssueCost(item));
-                if (amountOfWorkClosedOnDate > 0)
+                var issuesClosedOnGivenDate = allClosedIssues.Where(item => item.ClosedAt.Value.UtcDateTime.Date == currentDate);
+                if (issuesClosedOnGivenDate.Any())
                 {
-                    result.Add(new WorkDTO
+
+                    numberOfClosedIssues += issuesClosedOnGivenDate.Count();
+                    this.logger.LogInformation($"Found '{issuesClosedOnGivenDate.Count()}' issues closed on '{currentDate.ToString()}'. Total closed issues so far {numberOfClosedIssues}");
+
+                    double amountOfWorkClosedOnDate = issuesClosedOnGivenDate.Sum(item => GetIssueCost(item));
+                    if (amountOfWorkClosedOnDate > 0)
                     {
-                        Date = currentDate,
-                        DaysOfWorkLeft = workLeft,
-                    });
+                        result.Add(new WorkDTO
+                        {
+                            Date = currentDate,
+                            DaysOfWorkLeft = workLeft,
+                        });
+                        workLeft -= amountOfWorkClosedOnDate;
+                    }
                 }
 
-                workLeft -= amountOfWorkClosedOnDate;
                 currentDate = currentDate.AddDays(1);
-            } while (currentDate < DateTimeOffset.UtcNow.Date);
+            } while (currentDate < DateTimeOffset.UtcNow);
 
             result.Add(new WorkDTO
             {
@@ -76,7 +80,32 @@ namespace GitHub.Client
                 DaysOfWorkLeft = workLeft,
             });
 
-            return new BurndownDTO { WorkData = result, TotalNumberOfIssues = allIssues.Count, NumberOfIssuesLeft = allIssues.Count - numberOfClosedIssues };
+            return new BurndownDTO
+            {
+                WorkData = result,
+                TotalNumberOfIssues = allIssues.Count,
+                NumberOfIssuesLeft = allIssues.Count - numberOfClosedIssues,
+            };
+        }
+
+        private async Task<IEnumerable<Issue>> QueryIssuesToConsider(IssuesQuery query)
+        {
+            IEnumerable<Issue> allIssues = await QueryIssuesAsync(query, false);
+            if (!query.IncludeInvestigations)
+            {
+                allIssues = allIssues.Where(issue =>
+                {
+                    if (issue.State.Value == ItemState.Closed && !issue.HasLabel(query.Team.FixedIssuesIndicatingLabel))
+                    {
+                        // Exclude closed issues, which are not marked as fixed.
+                        return false;
+                    }
+
+                    return true;
+                });
+            }
+
+            return allIssues;
         }
 
         private async Task<IList<Issue>> QueryIssuesAsync(IssuesQuery query, bool queryForOpenIssuesOnly)
@@ -117,17 +146,9 @@ namespace GitHub.Client
                         || membersToIncludeInReport.Any(memberName => String.Equals(memberName, issue.Assignee.Login, StringComparison.OrdinalIgnoreCase));
         }
 
-        private DateTimeOffset GetDateOfFirstClosedIssue(IList<Issue> teamIssues, string fixedIssueIndicatingLabel)
+        private DateTimeOffset GetDateOfFirstClosedIssue(IEnumerable<Issue> closedIssuesQuery)
         {
-            var closedIssuesQuery = teamIssues
-                .Where(item => item.State.Value == ItemState.Closed);
-            if (fixedIssueIndicatingLabel != null)
-            {
-                closedIssuesQuery = closedIssuesQuery.Where(item => item.Labels.Any(l => l.Name == fixedIssueIndicatingLabel));
-                this.logger.LogInformation($"Searching for issues with label {fixedIssueIndicatingLabel}");
-            }
-
-            DateTimeOffset firstClosedDate = DateTimeOffset.Now.AddDays(-30);
+            DateTimeOffset firstClosedDate = DateTimeOffset.UtcNow.AddDays(-30);
 
             if (closedIssuesQuery.Any())
             {

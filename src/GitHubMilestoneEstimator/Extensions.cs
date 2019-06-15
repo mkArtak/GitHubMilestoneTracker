@@ -9,6 +9,11 @@ namespace GitHubMilestoneEstimator
     {
         private static readonly string repoUrlPrefix = "https://api.github.com/repos/";
 
+        public static bool HasLabel(this Issue issue, string label)
+        {
+            return issue.Labels.Any(l => string.Equals(l.Name, label, StringComparison.InvariantCultureIgnoreCase));
+        }
+
         public static string GetRepository(this Issue issue)
         {
             if (issue.Repository != null)

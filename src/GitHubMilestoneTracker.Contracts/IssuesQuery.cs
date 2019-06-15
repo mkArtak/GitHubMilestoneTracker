@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace MilestoneTracker.Contracts
 {
@@ -11,5 +9,10 @@ namespace MilestoneTracker.Contracts
         public string Milestone { get; set; }
 
         public TeamInfo Team { get; set; }
+
+        /// <summary>
+        /// Gets or sets a boolean value indicating whether the query result should include work on investigations and engagement with community, which resulted in no actual code changes.
+        /// </summary>
+        public bool IncludeInvestigations { get; set; }
     }
 }

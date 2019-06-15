@@ -33,16 +33,16 @@ namespace MilestoneTracker.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetBurndownDataAsync([FromQuery]string teamName, [FromQuery]string milestone, [FromQuery]string label, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetBurndownDataAsync([FromQuery]string teamName, [FromQuery]string milestone, [FromQuery]string label, [FromQuery]bool includeInvestigations, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 throw new InvalidOperationException(ModelState.Values.First().Errors.First().ErrorMessage);
             }
 
-            IWorkEstimator workEstimator = await GetWorkEstimatorAsync(teamName, CancellationToken.None);
+            IWorkEstimator workEstimator = await GetWorkEstimatorAsync(teamName, cancellationToken);
 
-            TeamInfo team = await this.GetCurrentTeamAsync(teamName, CancellationToken.None);
+            TeamInfo team = await this.GetCurrentTeamAsync(teamName, cancellationToken);
             IEnumerable<string> labels = null;
             if (label != null)
             {
@@ -54,7 +54,8 @@ namespace MilestoneTracker.Controllers
                 {
                     Team = team,
                     Milestone = milestone,
-                    FilterLabels = labels
+                    FilterLabels = labels,
+                    IncludeInvestigations = includeInvestigations
                 }, cancellationToken);
 
             return new JsonResult(burnDownData);

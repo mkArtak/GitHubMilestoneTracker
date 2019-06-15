@@ -15,6 +15,9 @@ namespace MilestoneTracker.Pages
         [FromQuery]
         public string Label { get; set; }
 
+        [FromQuery]
+        public bool IncludeInvestigations { get; set; }
+
         public BurndownChartModel BurndownModel { get; set; }
 
         public void OnGet()
@@ -23,7 +26,8 @@ namespace MilestoneTracker.Pages
             {
                 Milestone = this.Milestone,
                 TeamName = this.TeamName,
-                LabelsFilter = this.Label
+                LabelsFilter = this.Label,
+                IncludeInvestigations = this.IncludeInvestigations
             };
         }
     }
