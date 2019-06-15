@@ -1,5 +1,7 @@
 ﻿using Octokit;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GitHubMilestoneEstimator
 {
@@ -26,7 +28,17 @@ namespace GitHubMilestoneEstimator
 
         public static void ApplyLabelsFilter(this SearchIssuesRequest request, IEnumerable<string> labels)
         {
-
+            if (request.Labels == null)
+            {
+                request.Labels = labels;
+            }
+            else
+            {
+                var result = new List<string>();
+                result.AddRange(labels);
+                result.AddRange(request.Labels);
+                request.Labels = result.Distinct(StringComparer.InvariantCultureIgnoreCase);
+            }
         }
 
         public static void ApplyRepositoriesFilter(this SearchIssuesRequest request, IEnumerable<string> repositories)

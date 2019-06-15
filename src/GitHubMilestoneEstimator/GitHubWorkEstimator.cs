@@ -1,5 +1,6 @@
 ﻿using AM.Common.Validation;
 using GitHubMilestoneEstimator;
+using Microsoft.Extensions.Logging;
 using MilestoneTracker.Contracts;
 using MilestoneTracker.Contracts.DTO;
 using Octokit;
@@ -15,11 +16,13 @@ namespace GitHub.Client
     {
         private readonly IGitHubClient client;
         private readonly TeamInfo options;
+        private readonly ILogger logger;
 
-        public GitHubWorkEstimator(IGitHubClient client, TeamInfo options)
+        public GitHubWorkEstimator(IGitHubClient client, TeamInfo options, ILogger<GitHubWorkEstimator> logger)
         {
             this.client = client.Ensure(nameof(client)).IsNotNull().Value;
             this.options = options.Ensure(nameof(options)).IsNotNull().Value;
+            this.logger = logger.Ensure(nameof(logger)).IsNotNull().Value;
         }
 
         public async Task<IEnumerable<WorkItem>> GetAmountOfWorkAsync(IssuesQuery query, CancellationToken cancellationToken)
@@ -95,14 +98,7 @@ namespace GitHub.Client
 
             request.ApplyRepositoriesFilter(query.Team.Repositories);
 
-            IEnumerable<string> membersToIncludeInReport = GetMembersToIncludeInReport(query.Team);
-
-            IList<Issue> result = await this.RetrieveAllResultsAsync(
-                request,
-                issue => IssueBelongsToTeam(query.Team, issue)
-                    && (issue.Assignee == null
-                        || membersToIncludeInReport.Any(memberName => String.Equals(memberName, issue.Assignee.Login, StringComparison.OrdinalIgnoreCase)))
-                );
+            IList<Issue> result = await this.RetrieveAllResultsAsync(request, issue => IssueBelongsToTeam(query.Team, issue));
 
             /// TODO: Remove this later
             //teamIssues = teamIssues.Where(item => !item.ClosedAt.HasValue || item.ClosedAt.Value >= new DateTimeOffset(2019, 5, 27, 0, 0, 0, TimeSpan.Zero)).ToList();
@@ -111,45 +107,45 @@ namespace GitHub.Client
 
         private bool IssueBelongsToTeam(TeamInfo team, Issue issue)
         {
-            if (team.AreaLabels == null || !team.AreaLabels.Any())
+            if (team.AreaLabels != null && !issue.Labels.Any(lbl => team.AreaLabels.Contains(lbl.Name)))
             {
-                return true;
+                return false;
             }
 
-            return issue.Labels.Any(lbl => team.AreaLabels.Contains(lbl.Name));
+            IEnumerable<string> membersToIncludeInReport = team.GetMembersToIncludeInReport();
+            return issue.Assignee == null
+                        || membersToIncludeInReport.Any(memberName => String.Equals(memberName, issue.Assignee.Login, StringComparison.OrdinalIgnoreCase));
         }
 
-        private static DateTimeOffset GetDateOfFirstClosedIssue(IList<Issue> teamIssues, string fixedIssueIndicatingLabel)
+        private DateTimeOffset GetDateOfFirstClosedIssue(IList<Issue> teamIssues, string fixedIssueIndicatingLabel)
         {
             var closedIssuesQuery = teamIssues
                 .Where(item => item.State.Value == ItemState.Closed);
             if (fixedIssueIndicatingLabel != null)
             {
                 closedIssuesQuery = closedIssuesQuery.Where(item => item.Labels.Any(l => l.Name == fixedIssueIndicatingLabel));
+                this.logger.LogInformation($"Searching for issues with label {fixedIssueIndicatingLabel}");
             }
 
-            var closedIssues = closedIssuesQuery.Select(item => item.ClosedAt);
+            DateTimeOffset firstClosedDate = DateTimeOffset.Now.AddDays(-30);
 
-            DateTimeOffset firstClosedDate;
-            if (closedIssues.Any())
+            if (closedIssuesQuery.Any())
             {
-                firstClosedDate = closedIssues
-                .Min(item => item ?? DateTimeOffset.UtcNow);
-                //.OrderBy(d => d)
-                //.FirstOrDefault() ?? DateTimeOffset.Now.AddDays(-30);
-            }
-            else
-            {
-                firstClosedDate = DateTimeOffset.UtcNow.AddDays(-30);
+                var firstClosedIssue = closedIssuesQuery
+                .OrderBy(item => item.ClosedAt)
+                .FirstOrDefault();
+                if (firstClosedIssue != null)
+                {
+                    firstClosedDate = firstClosedIssue.ClosedAt.Value;
+                    this.logger.LogInformation($"Found first closed issue {firstClosedIssue.Number} which was closed at {firstClosedDate}");
+                }
+                else
+                {
+                    this.logger.LogInformation("None of the issues were closed");
+                }
             }
 
             return firstClosedDate;
-        }
-
-        private static IEnumerable<string> GetMembersToIncludeInReport(TeamInfo team)
-        {
-            var result = team.TeamMembers?.Where(item => item.IncludeInReports)?.Select(item => item.Name)?.ToList();
-            return result ?? new List<string>();
         }
 
         private async Task<List<Issue>> RetrieveAllResultsAsync(SearchIssuesRequest request, Func<Issue, bool> filter)

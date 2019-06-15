@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="AM.Common.Validation" Version="2.5.3-CI-20190513-023727" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
     <PackageReference Include="Octokit" Version="0.32.0" />
   </ItemGroup>
 

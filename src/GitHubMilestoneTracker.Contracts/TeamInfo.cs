@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace MilestoneTracker.Contracts
 {
     public class TeamInfo
     {
+        private List<string> membersToIncludeInReport;
+
         /// <summary>
         /// Gets or sets the name of the team.
         /// </summary>
@@ -49,5 +52,17 @@ namespace MilestoneTracker.Contracts
         /// Gets or sets the list of labels, which indicate the issues to be excluded from query results.
         /// </summary>
         public IEnumerable<string> LabelsToExclude { get; set; }
+
+        public IEnumerable<string> GetMembersToIncludeInReport()
+        {
+            if (this.membersToIncludeInReport == null)
+            {
+                this.membersToIncludeInReport = TeamMembers?.Where(item => item.IncludeInReports)?.Select(item => item.Name)?.ToList();
+                if (this.membersToIncludeInReport == null)
+                    this.membersToIncludeInReport = new List<string>();
+            }
+
+            return this.membersToIncludeInReport;
+        }
     }
 }
