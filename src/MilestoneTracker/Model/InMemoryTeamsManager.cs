@@ -16,12 +16,12 @@ namespace MilestoneTracker.Model
                 new CostMarker { Name = "area-blazor", Factor = 1 }
             },
             FixedIssuesIndicatingLabel = "Done",
-            DefaultMilestonesToTrack = "3.0.0-preview6",
+            DefaultMilestonesToTrack = "3.0.0-preview7",
             AreaLabels = new[] { "area-mvc", "area-blazor" },
             Name = "ASP.NET Core MVC",
             Organization = "aspnet",
             Repositories = new[] { "aspnet/AspNetCore" },
-            LabelsToExclude = new[] { "Validation", "duplicate" },
+            LabelsToExclude = new[] { "Validation", "duplicate", "external" },
             TeamMembers = new[] {
                 "mkArtakMSFT",
                 "ajaybhargavb",
