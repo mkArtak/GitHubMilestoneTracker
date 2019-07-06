@@ -46,6 +46,8 @@ namespace MilestoneTracker.Pages
 
         public WorkDataViewModel Work { get; set; }
 
+        public MergedPRsViewModel PRVM { get; set; }
+
         public IndexModel(
             WorkEstimatorFactory workEstimatorFactory,
             ITeamsManager teamsManager,
@@ -92,18 +94,27 @@ namespace MilestoneTracker.Pages
                 }
 
                 IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(team, cancellationToken);
-
-                await this.RetrieveWorkloadAsync(workEstimator, cancellationToken);
+                team = await workEstimator.GetTeamUserIcons();
+                await Task.WhenAll(this.RetrieveWorkloadAsync(workEstimator, team, cancellationToken), this.RetrievePullRequests(workEstimator, team, cancellationToken));
             }
 
             return Page();
         }
 
-        private async Task RetrieveWorkloadAsync(IWorkEstimator workEstimator, CancellationToken cancellationToken)
+        private async Task RetrievePullRequests(IWorkEstimator workEstimator, TeamInfo team, CancellationToken cancellationToken)
+        {
+            this.PRVM = new MergedPRsViewModel
+            {
+                PullRequests = await workEstimator.GetPullRequestsAsync(new IssuesQuery(), cancellationToken),
+                Team = team
+            };
+        }
+
+        private async Task RetrieveWorkloadAsync(IWorkEstimator workEstimator, TeamInfo team, CancellationToken cancellationToken)
         {
             this.Work = new WorkDataViewModel
             {
-                Team = await workEstimator.GetTeamUserIcons()
+                Team = team
             };
 
             IList<Task> tasks = new List<Task>();

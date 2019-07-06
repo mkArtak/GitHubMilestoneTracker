@@ -7,7 +7,6 @@
     IDictionary<string, double> sumByMilestone = new Dictionary<string, double>();
 }
 <style type="text/css">
-
     .column-header {
         font-size: 1.2em;
         font-weight: bolder;
@@ -54,6 +53,7 @@
     .profileIcon {
         width: 15px;
         height: 15px;
+        text-align: left;
     }
 </style>
 <h2>Work</h2>
@@ -76,7 +76,6 @@
             <td class="row-first-item @Model.GetClassForMemberCell(member)">
                 <img src="@memberIcon" class="profileIcon" />
                 @member
-
             </td>
 
             @foreach (var milestone in Model.Milestones)

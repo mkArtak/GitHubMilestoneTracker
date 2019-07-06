@@ -1,0 +1,23 @@
+﻿@using MilestoneTracker.Contracts;
+@using MilestoneTracker.Model;
+
+@model MergedPRsViewModel;
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<table>
+    @foreach (PR pr in Model.PullRequests)
+    {
+        var memberIcon = Model.Team.TeamMembers.Where(tm => tm.Name == pr.CreatorLogin).Single().IconUrl;
+
+        <tr>
+            <td>
+                <img src="@memberIcon" class="profileIcon" /> @pr.CreatorLogin
+            </td>
+            <td><a href="@pr.Url" target="_blank"> @pr.Number</a></td>
+            <td>@pr.Title</td>
+        </tr>
+    }
+</table>

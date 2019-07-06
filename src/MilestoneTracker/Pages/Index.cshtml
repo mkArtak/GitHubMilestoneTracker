@@ -29,6 +29,11 @@
         {
             <partial name="~/Pages/WorkStatus.cshtml" for="Work" />
         }
+
+        @if (Model.PRVM != null)
+        {
+            <partial name="~/Pages/PartialViews/PullRequestsView.cshtml" for="PRVM" />
+        }
     </div>
 </div>
 <div class="row">

@@ -1,5 +1,6 @@
 ﻿using AM.Common.Validation;
 using GitHubMilestoneEstimator;
+using GitHubMilestoneEstimator.Converters;
 using Microsoft.Extensions.Logging;
 using MilestoneTracker.Contracts;
 using MilestoneTracker.Contracts.DTO;
@@ -18,6 +19,8 @@ namespace GitHub.Client
         private readonly TeamInfo teamInfo;
         private readonly ILogger logger;
         private bool iconsRetrieved;
+
+        private static readonly PullRequestToPRConverter prConverter = new PullRequestToPRConverter();
 
         public GitHubWorkEstimator(IGitHubClient client, TeamInfo options, ILogger<GitHubWorkEstimator> logger)
         {
@@ -38,6 +41,42 @@ namespace GitHub.Client
                     Cost = this.GetIssueCost(item),
                     Id = item.Number
                 }).ToList();
+        }
+
+        public async Task<IEnumerable<PR>> GetPullRequestsAsync(IssuesQuery query, CancellationToken cancellationToken)
+        {
+            query.Ensure(nameof(query)).IsNotNull();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            IList<PR> result = new List<PR>();
+
+            PullRequestRequest request = new PullRequestRequest();
+            foreach (var repo in this.teamInfo.Repositories)
+            {
+                var repoPRs = await this.client.PullRequest.GetAllForRepository(this.teamInfo.Organization, repo.Split('/').Last(), request);
+                foreach (var pr in repoPRs)
+                {
+                    if (/*pr.Merged && */PRBelongsToTeam(pr, this.teamInfo))
+                    {
+                        result.Add(prConverter.Convert(pr));
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private bool PRBelongsToTeam(PullRequest pr, TeamInfo teamInfo)
+        {
+            foreach (var member in teamInfo.TeamMembers)
+            {
+                if (string.Equals(member.Name, pr.User.Login, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public async Task<TeamInfo> GetTeamUserIcons()
