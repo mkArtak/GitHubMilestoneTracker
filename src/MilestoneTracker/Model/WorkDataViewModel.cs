@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MilestoneTracker.Contracts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,6 +13,8 @@ namespace MilestoneTracker.Model
         private readonly Lazy<double> totalWorkAmountCache;
         private readonly Lazy<string[]> membersWithMaxAmountOfWorkCache;
         private readonly Lazy<string[]> membersWithMinAmountOfWorkCache;
+
+        public TeamInfo Team { get; set; }
 
         private IDictionary<string, IDictionary<string, MemberMilestoneData>> workPerMember { get; set; } = new Dictionary<string, IDictionary<string, MemberMilestoneData>>();
         private IDictionary<string, double> amountOfWorkPerMember = new Dictionary<string, double>();

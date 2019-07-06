@@ -101,48 +101,43 @@ namespace MilestoneTracker.Pages
 
         private async Task RetrieveWorkloadAsync(IWorkEstimator workEstimator, CancellationToken cancellationToken)
         {
-            this.Work = new WorkDataViewModel();
+            this.Work = new WorkDataViewModel
+            {
+                Team = await workEstimator.GetTeamUserIcons()
+            };
 
             IList<Task> tasks = new List<Task>();
-            using (CancellationTokenSource tokenSource = new CancellationTokenSource())
+            TeamInfo currentTeam = await this.GetCurrentTeamAsync(cancellationToken);
+            this.Work.TeamName = currentTeam.Name;
+            this.Work.Label = this.Label;
+            object syncRoot = new object();
+
+            foreach (var milestone in this.Milestones)
             {
-                TeamInfo currentTeam = await this.GetCurrentTeamAsync(cancellationToken);
-                this.Work.TeamName = currentTeam.Name;
-                this.Work.Label = this.Label;
-                object syncRoot = new object();
-
-                foreach (var milestone in this.Milestones)
+                tasks.Add(Task.Run(async () =>
                 {
-                    tasks.Add(Task.Run(async () =>
+                    IEnumerable<WorkItem> issues = await workEstimator.GetWorkItemsAsync(
+                        new IssuesQuery
+                        {
+                            Team = currentTeam,
+                            Milestone = milestone,
+                            FilterLabels = this.Labels
+                        },
+                        cancellationToken);
+                    IEnumerable<string> members = currentTeam.GetMembersToIncludeInReport();
+                    if (members == null || !members.Any())
                     {
-                        IEnumerable<WorkItem> issues = await workEstimator.GetAmountOfWorkAsync(
-                            new IssuesQuery
-                            {
-                                Team = currentTeam,
-                                Milestone = milestone,
-                                FilterLabels = this.Labels
-                            },
-                            cancellationToken);
-                        IEnumerable<string> members = currentTeam.TeamMembers?.Where(item => item.IncludeInReports)?.Select(item => item.Name)?.Union(new string[] { "Unassigned" });
-                        if (members == null)
-                        {
-                            members = new string[] { "Unassigned" };
-                        }
+                        members = new string[] { "Unassigned" };
+                    }
 
-                        foreach (var member in members)
+                    foreach (var member in members)
+                    {
+                        lock (syncRoot)
                         {
-                            if (tokenSource.IsCancellationRequested)
-                            {
-                                break;
-                            }
-
-                            lock (syncRoot)
-                            {
-                                this.Work[member, milestone] = issues.Where(item => item.Owner == member).Sum(item => item.Cost);
-                            }
+                            this.Work[member, milestone] = issues.Where(item => item.Owner == member).Sum(item => item.Cost);
                         }
-                    }));
-                }
+                    }
+                }));
             }
 
             await Task.WhenAll(tasks);

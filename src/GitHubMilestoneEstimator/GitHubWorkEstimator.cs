@@ -15,17 +15,18 @@ namespace GitHub.Client
     internal class GitHubWorkEstimator : IWorkEstimator
     {
         private readonly IGitHubClient client;
-        private readonly TeamInfo options;
+        private readonly TeamInfo teamInfo;
         private readonly ILogger logger;
+        private bool iconsRetrieved;
 
         public GitHubWorkEstimator(IGitHubClient client, TeamInfo options, ILogger<GitHubWorkEstimator> logger)
         {
             this.client = client.Ensure(nameof(client)).IsNotNull().Value;
-            this.options = options.Ensure(nameof(options)).IsNotNull().Value;
+            this.teamInfo = options.Ensure(nameof(options)).IsNotNull().Value;
             this.logger = logger.Ensure(nameof(logger)).IsNotNull().Value;
         }
 
-        public async Task<IEnumerable<WorkItem>> GetAmountOfWorkAsync(IssuesQuery query, CancellationToken cancellationToken)
+        public async Task<IEnumerable<WorkItem>> GetWorkItemsAsync(IssuesQuery query, CancellationToken cancellationToken)
         {
             query.Ensure(nameof(query)).IsNotNull();
 
@@ -37,6 +38,22 @@ namespace GitHub.Client
                     Cost = this.GetIssueCost(item),
                     Id = item.Number
                 }).ToList();
+        }
+
+        public async Task<TeamInfo> GetTeamUserIcons()
+        {
+            if (!this.iconsRetrieved)
+            {
+                this.iconsRetrieved = true;
+                foreach (var item in this.teamInfo.TeamMembers)
+                {
+                    var user = await this.client.User.Get(item.Name);
+
+                    item.IconUrl = user.AvatarUrl;
+                }
+            }
+
+            return this.teamInfo;
         }
 
         public async Task<BurndownDTO> GetBurndownDataAsync(IssuesQuery query, CancellationToken cancellationToken)
@@ -208,14 +225,14 @@ namespace GitHub.Client
         private double GetIssueCost(Issue issue)
         {
             string costLabel = issue.Labels.SingleOrDefault(
-                item => this.options.CostLabels.Any(
+                item => this.teamInfo.CostLabels.Any(
                     lbl => lbl.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase)))?.Name;
             if (costLabel == null)
             {
                 return 0;
             }
 
-            CostMarker costMarker = this.options.CostLabels.Where(item => item.Name == costLabel).SingleOrDefault();
+            CostMarker costMarker = this.teamInfo.CostLabels.Where(item => item.Name == costLabel).SingleOrDefault();
             if (costMarker == null)
             {
                 return 0;

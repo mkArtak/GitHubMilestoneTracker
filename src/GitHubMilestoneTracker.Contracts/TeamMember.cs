@@ -5,5 +5,7 @@
         public string Name { get; set; }
 
         public bool IncludeInReports { get; set; }
+
+        public string IconUrl { get; set; }
     }
 }

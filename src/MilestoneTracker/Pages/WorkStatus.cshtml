@@ -18,6 +18,7 @@
     .row-first-item {
         font-weight: bold;
         padding-left: 3px;
+        text-align: left;
     }
 
     .row-item {
@@ -49,6 +50,11 @@
         font-weight: bolder;
         font-style: italic;
     }
+
+    .profileIcon {
+        width: 15px;
+        height: 15px;
+    }
 </style>
 <h2>Work</h2>
 <table class="table-bordered">
@@ -65,8 +71,13 @@
     </thead>
     @foreach (var member in Model.Members)
     {
+        var memberIcon = Model.Team.TeamMembers.Where(tm => tm.Name == member).Single().IconUrl;
         <tr>
-            <td class="row-item row-first-item @Model.GetClassForMemberCell(member)">@member</td>
+            <td class="row-first-item @Model.GetClassForMemberCell(member)">
+                <img src="@memberIcon" class="profileIcon" />
+                @member
+
+            </td>
 
             @foreach (var milestone in Model.Milestones)
             {
