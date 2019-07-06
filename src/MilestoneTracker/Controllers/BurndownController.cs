@@ -55,7 +55,9 @@ namespace MilestoneTracker.Controllers
                     Team = team,
                     Milestone = milestone,
                     FilterLabels = labels,
-                    IncludeInvestigations = includeInvestigations
+                    IncludeInvestigations = includeInvestigations,
+                    Clause = IssuesQueryClause.All,
+                    QueryIssues = true
                 }, cancellationToken);
 
             return new JsonResult(burnDownData);

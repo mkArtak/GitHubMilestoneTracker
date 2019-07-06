@@ -14,5 +14,13 @@ namespace MilestoneTracker.Contracts
         /// Gets or sets a boolean value indicating whether the query result should include work on investigations and engagement with community, which resulted in no actual code changes.
         /// </summary>
         public bool IncludeInvestigations { get; set; }
+
+        /// <summary>
+        /// true, to query for Issues.
+        /// false, to query for PRs.
+        /// </summary>
+        public bool QueryIssues { get; set; }
+
+        public IssuesQueryClause Clause { get; set; }
     }
 }

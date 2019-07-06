@@ -95,7 +95,13 @@ namespace MilestoneTracker.Pages
 
                 IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(team, cancellationToken);
                 team = await workEstimator.GetTeamUserIcons();
-                await Task.WhenAll(this.RetrieveWorkloadAsync(workEstimator, team, cancellationToken), this.RetrievePullRequests(workEstimator, team, cancellationToken));
+
+                this.Work = new WorkDataViewModel
+                {
+                    Team = team
+                };
+
+                await Task.WhenAll(this.RetrieveWorkloadAsync(workEstimator, cancellationToken), this.RetrievePullRequests(workEstimator, team, cancellationToken));
             }
 
             return Page();
@@ -105,18 +111,13 @@ namespace MilestoneTracker.Pages
         {
             this.PRVM = new MergedPRsViewModel
             {
-                PullRequests = await workEstimator.GetPullRequestsAsync(new IssuesQuery(), cancellationToken),
+                PullRequests = await workEstimator.GetPullRequestsAsync(DateTimeOffset.UtcNow.AddDays(-7), cancellationToken),
                 Team = team
             };
         }
 
-        private async Task RetrieveWorkloadAsync(IWorkEstimator workEstimator, TeamInfo team, CancellationToken cancellationToken)
+        private async Task RetrieveWorkloadAsync(IWorkEstimator workEstimator, CancellationToken cancellationToken)
         {
-            this.Work = new WorkDataViewModel
-            {
-                Team = team
-            };
-
             IList<Task> tasks = new List<Task>();
             TeamInfo currentTeam = await this.GetCurrentTeamAsync(cancellationToken);
             this.Work.TeamName = currentTeam.Name;
@@ -132,7 +133,10 @@ namespace MilestoneTracker.Pages
                         {
                             Team = currentTeam,
                             Milestone = milestone,
-                            FilterLabels = this.Labels
+                            FilterLabels = this.Labels,
+                            Clause = IssuesQueryClause.Open,
+                            QueryIssues = true,
+                            IncludeInvestigations = true
                         },
                         cancellationToken);
                     IEnumerable<string> members = currentTeam.GetMembersToIncludeInReport();
