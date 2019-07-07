@@ -4,19 +4,20 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="row">
-    <div class="col-md-3">
-        @if (Model.Work != null)
-        {
-            <partial name="~/Pages/WorkStatus.cshtml" for="Work" />
-        }
-
-        @if (Model.PRVM != null)
-        {
-            <partial name="~/Pages/PartialViews/PullRequestsView.cshtml" for="PRVM" />
-        }
+@if (Model.Work != null)
+{
+    <div class="row">
+        <partial name="~/Pages/WorkStatus.cshtml" for="Work" />
     </div>
-</div>
+}
+
+@if (Model.PRVM != null)
+{
+    <div class="row">
+        <partial name="~/Pages/PartialViews/PullRequestsView.cshtml" for="PRVM" />
+    </div>
+}
+
 <div class="row">
     <form method="get" class="milestone-form">
         <span class="form-input-label">Milestone:</span> @Html.EditorFor(m => m.Milestone, "Milestone", "Milestone")
