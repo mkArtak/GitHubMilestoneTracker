@@ -76,6 +76,13 @@ namespace GitHub.Client
                 }
             }
 
+            var orgUsers = await this.client.Organization.Member.GetAll(this.teamInfo.Organization);
+
+            foreach (var pr in result)
+            {
+                pr.IsExternal = !orgUsers.Any(ou => String.Equals(ou.Login, pr.CreatorLogin, StringComparison.InvariantCultureIgnoreCase));
+            }
+
             return result;
         }
 

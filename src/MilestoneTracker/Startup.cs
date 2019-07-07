@@ -1,4 +1,3 @@
-using GitHub.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,7 +29,7 @@ namespace MilestoneTracker
             //services.AddTeams(this.Configuration);
             services.AddTransient<ITeamsManager, InMemoryTeamsManager>();
             services.AddTransient<IUserTeamsManager, InMemoryTeamsManager>();
-            services.AddSingleton<WorkEstimatorFactory>();
+            services.AddGitHubMilestoneEstimator();
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;

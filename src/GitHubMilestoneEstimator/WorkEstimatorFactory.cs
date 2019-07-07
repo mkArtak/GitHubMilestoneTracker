@@ -1,4 +1,5 @@
 ﻿using AM.Common.Validation;
+using GitHubMilestoneEstimator;
 using Microsoft.Extensions.Logging;
 using MilestoneTracker.Contracts;
 using Octokit;
@@ -18,10 +19,23 @@ namespace GitHub.Client
         {
             teamInfo.Ensure().IsNotNull();
 
-            GitHubClient client = new GitHubClient(new ProductHeaderValue(teamInfo.Organization));
-            client.Credentials = new Credentials(accessToken);
+            GitHubClient client = CreateClient(accessToken, teamInfo);
 
             return new GitHubWorkEstimator(client, teamInfo, loggerFactory.CreateLogger<GitHubWorkEstimator>());
+        }
+
+        public IProfileIconRetriever CreateProfileIconRetriever(string accessToken, TeamInfo teamInfo)
+        {
+            teamInfo.Ensure().IsNotNull();
+
+            return new GitHubUserProfileIconRetriever(CreateClient(accessToken, teamInfo));
+        }
+
+        private static GitHubClient CreateClient(string accessToken, TeamInfo teamInfo)
+        {
+            GitHubClient client = new GitHubClient(new ProductHeaderValue(teamInfo.Organization));
+            client.Credentials = new Credentials(accessToken);
+            return client;
         }
     }
 }

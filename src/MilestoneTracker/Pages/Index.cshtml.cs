@@ -112,7 +112,8 @@ namespace MilestoneTracker.Pages
             this.PRVM = new MergedPRsViewModel
             {
                 PullRequests = await workEstimator.GetPullRequestsAsync(DateTimeOffset.UtcNow.AddDays(-7), cancellationToken),
-                Team = team
+                Team = team,
+                IconRetriever = await this.CreateProfileIconRetriever(team, cancellationToken)
             };
         }
 
@@ -160,11 +161,25 @@ namespace MilestoneTracker.Pages
 
         private async Task<IWorkEstimator> GetWorkEstimatorAsync(TeamInfo team, CancellationToken cancellationToken)
         {
-            string accessToken = await this.HttpContext.GetTokenAsync("access_token");
+            string accessToken = await GetAccessToken();
 
             // This allows the client to make requests to the GitHub API on behalf of the user
             // without ever having the user's OAuth credentials.
             return this.workEstimatorFactory.Create(accessToken, team);
+        }
+
+        private async Task<IProfileIconRetriever> CreateProfileIconRetriever(TeamInfo team, CancellationToken cancellationToken)
+        {
+            string accessToken = await GetAccessToken();
+
+            // This allows the client to make requests to the GitHub API on behalf of the user
+            // without ever having the user's OAuth credentials.
+            return this.workEstimatorFactory.CreateProfileIconRetriever(accessToken, team);
+        }
+
+        private Task<string> GetAccessToken()
+        {
+            return this.HttpContext.GetTokenAsync("access_token");
         }
 
         private async Task<TeamInfo> GetCurrentTeamAsync(CancellationToken token)

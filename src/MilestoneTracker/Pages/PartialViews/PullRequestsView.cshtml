@@ -5,14 +5,47 @@
 @*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
+<style type="text/css">
+    .sectionHeader {
+        font-weight: bold;
+        font-size: 1.2em;
+    }
 
+    .profileIcon {
+        width: 15px;
+        height: 15px;
+    }
+</style>
 <div>
     Pull requests merged during last 7 days.
 </div>
+
+<div> <span class="sectionHeader">Community PRs</span> </div>
 <table>
-    @foreach (PR pr in Model.PullRequests)
+    @foreach (PR pr in Model.CommunityPRs)
     {
-        var memberIcon = Model.Team.TeamMembers.Where(tm => tm.Name == pr.CreatorLogin).SingleOrDefault()?.IconUrl;
+        var memberIcon = await Model.IconRetriever.GetUserProfileIconUrl(pr.CreatorLogin);
+
+        <tr>
+            <td>
+                @if (memberIcon != null)
+                {
+                    <img src="@memberIcon" class="profileIcon" />
+                }
+
+                @pr.CreatorLogin
+            </td>
+            <td><a href="@pr.Url" target="_blank"> @pr.Number</a></td>
+            <td>@pr.Title</td>
+        </tr>
+    }
+</table>
+
+<div> <span class="sectionHeader">Team PRs</span></div>
+<table>
+    @foreach (PR pr in Model.InternalPRs)
+    {
+        var memberIcon = await Model.IconRetriever.GetUserProfileIconUrl(pr.CreatorLogin);
 
         <tr>
             <td>

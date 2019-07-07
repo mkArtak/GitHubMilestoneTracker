@@ -12,5 +12,10 @@ namespace MilestoneTracker.Contracts
         public string Title { get; set; }
         public string Url { get; set; }
         public string CreatorLogin { get; set; }
+
+        /// <summary>
+        /// Gets a boolean value, indicating whether the PR was sent by an external contributor.
+        /// </summary>
+        public bool IsExternal { get; set; }
     }
 }
