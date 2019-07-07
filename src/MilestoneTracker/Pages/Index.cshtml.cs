@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MilestoneTracker.Contracts;
-using MilestoneTracker.Model;
+using MilestoneTracker.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

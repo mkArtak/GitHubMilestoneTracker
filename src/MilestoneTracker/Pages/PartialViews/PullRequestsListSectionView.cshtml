@@ -1,0 +1,25 @@
+﻿@using MilestoneTracker.Contracts;
+@using MilestoneTracker.ViewModels;
+
+@model PRListViewModel;
+
+<div> <span class="sectionHeader">@Model.Title</span></div>
+<table class="table-bordered">
+    @foreach (PR pr in Model.PullRequests)
+    {
+        var memberIcon = await Model.IconRetriever.GetUserProfileIconUrl(pr.CreatorLogin);
+
+        <tr>
+            <td class="row-first-item" style="min-width: 200px;">
+                @if (memberIcon != null)
+                {
+                    <img src="@memberIcon" class="profileIcon" />
+                }
+
+                @pr.CreatorLogin
+            </td>
+            <td class="row-item"><a href="@pr.Url" target="_blank"> @pr.Number</a></td>
+            <td class="row-item" style=" text-align:left; min-width: 600px;">@pr.Title</td>
+        </tr>
+    }
+</table>

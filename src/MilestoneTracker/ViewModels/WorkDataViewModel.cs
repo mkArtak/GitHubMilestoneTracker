@@ -1,9 +1,10 @@
 ﻿using MilestoneTracker.Contracts;
+using MilestoneTracker.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MilestoneTracker.Model
+namespace MilestoneTracker.ViewModels
 {
     public class WorkDataViewModel
     {
