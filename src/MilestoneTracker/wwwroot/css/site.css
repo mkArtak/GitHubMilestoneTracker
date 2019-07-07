@@ -33,3 +33,80 @@ body {
         display: none;
     }
 }
+
+.sectionHeader {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.profileIcon {
+    width: 15px;
+    height: 15px;
+}
+
+.column-header {
+    font-size: 1.2em;
+    font-weight: bolder;
+    min-width: 150px;
+    text-align: center;
+}
+
+.row-first-item {
+    font-weight: bold;
+    padding-left: 3px;
+    text-align: left;
+}
+
+.row-item {
+    text-align: center;
+    width: 130px;
+}
+
+.row-last-item {
+    font-weight: bolder;
+    text-align: center;
+}
+
+.row-bottom-item {
+    text-align: center;
+    font-weight: bolder;
+    font-size: 1.1em;
+}
+
+.row-item-max {
+    color: red;
+}
+
+.row-item-min {
+    color: green;
+}
+
+.row-member-unassigned {
+    color: darkred;
+    font-weight: bolder;
+    font-style: italic;
+}
+
+.profileIcon {
+    width: 15px;
+    height: 15px;
+    text-align: left;
+}
+
+.milestone-form {
+    margin-top: 6px;
+}
+
+.form-input-label {
+    font-weight: bolder;
+}
+
+.form-submit-button {
+    width: 150px;
+    margin-left: 6px;
+    display: inline;
+}
+
+.milestone-form input {
+    display: inline;
+}

@@ -1,61 +1,8 @@
 ﻿@using MilestoneTracker.Model
 @model WorkDataViewModel
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
 @{
     IDictionary<string, double> sumByMilestone = new Dictionary<string, double>();
 }
-<style type="text/css">
-    .column-header {
-        font-size: 1.2em;
-        font-weight: bolder;
-        min-width: 150px;
-        text-align: center;
-    }
-
-    .row-first-item {
-        font-weight: bold;
-        padding-left: 3px;
-        text-align: left;
-    }
-
-    .row-item {
-        text-align: center;
-        width: 130px;
-    }
-
-    .row-last-item {
-        font-weight: bolder;
-        text-align: center;
-    }
-
-    .row-bottom-item {
-        text-align: center;
-        font-weight: bolder;
-        font-size: 1.1em;
-    }
-
-    .row-item-max {
-        color: red;
-    }
-
-    .row-item-min {
-        color: green;
-    }
-
-    .row-member-unassigned {
-        color: darkred;
-        font-weight: bolder;
-        font-style: italic;
-    }
-
-    .profileIcon {
-        width: 15px;
-        height: 15px;
-        text-align: left;
-    }
-</style>
 <h2>Work</h2>
 <table class="table-bordered">
     <thead>
