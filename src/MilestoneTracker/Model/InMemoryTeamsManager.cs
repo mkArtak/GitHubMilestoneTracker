@@ -20,7 +20,7 @@ namespace MilestoneTracker.Model
             AreaLabels = new[] { "area-mvc", "area-blazor" },
             Name = "ASP.NET Core MVC",
             Organization = "aspnet",
-            Repositories = new[] { "aspnet/AspNetCore" },
+            Repositories = new[] { "aspnet/AspNetCore", "aspnet/Razor.VSCode", "aspnet/AspNetCore-Tooling" },
             LabelsToExclude = new[] { "Validation", "duplicate", "external" },
             TeamMembers = new[] {
                 "mkArtakMSFT",
