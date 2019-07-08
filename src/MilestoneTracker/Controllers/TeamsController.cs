@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilestoneTracker.Contracts;
+using MilestoneTracker.Model;
 using System;
 using System.Linq;
 using System.Threading;
@@ -11,7 +12,7 @@ namespace MilestoneTracker.Controllers
 {
     [Route("api/Teams")]
     [Authorize]
-    public class TeamsController : Controller
+    public class TeamsController : ControllerBase
     {
         private readonly ITeamsManager teamsManager;
 
@@ -21,7 +22,7 @@ namespace MilestoneTracker.Controllers
         }
 
         [HttpGet("{teamName}")]
-        public async Task<TeamInfo> GetTeamInfoAsync([FromQuery]string teamName)
+        public async Task<TeamInfo> GetTeamInfoAsync([FromQuery(Name = QueryStringParameters.TeamName)]string teamName)
         {
             if (!ModelState.IsValid)
             {

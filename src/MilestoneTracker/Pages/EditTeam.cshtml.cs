@@ -7,6 +7,7 @@ using AM.Common.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MilestoneTracker.Contracts;
+using MilestoneTracker.Model;
 
 namespace MilestoneTracker.Pages
 {
@@ -18,7 +19,7 @@ namespace MilestoneTracker.Pages
 
         public TeamInfo Team { get => this.currentTeam; }
 
-        [FromQuery]
+        [FromQuery(Name = QueryStringParameters.TeamName)]
         public string TeamName { get; set; }
 
         public EditTeamModel(ITeamsManager teamsManager, IUserTeamsManager userTeamsManager)

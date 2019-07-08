@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using  MilestoneTracker.Model
+@{
+    string currentTeam = Context.Request.Query[QueryStringParameters.TeamName].ToString();
+    IDictionary<string, string> queryParams = new Dictionary<string, string> { { QueryStringParameters.TeamName, currentTeam } };
+}
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -30,7 +35,10 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-page="/Index">Work progress</a></li>
+                    <li><a asp-page="/Index" asp-all-route-data="queryParams">Work progress</a></li>
+                </ul>
+                <ul class="nav navbar-nav">
+                    <li><a asp-page="/PullRequests" asp-all-route-data="queryParams">Pull Requests</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     @if (User.Identity.IsAuthenticated)

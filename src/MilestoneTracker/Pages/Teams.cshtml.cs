@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace MilestoneTracker.Pages
 {
+    [Authorize]
     public class TeamsModel : PageModel
     {
         private readonly ITeamsManager teamsManager;
@@ -24,7 +25,6 @@ namespace MilestoneTracker.Pages
             this.userTeamsManager = userTeamsManager.Ensure(nameof(userTeamsManager)).IsNotNull().Value;
         }
 
-        [Authorize]
         public async Task<IActionResult> OnGet()
         {
             if (!User.Identity.IsAuthenticated)
@@ -37,8 +37,6 @@ namespace MilestoneTracker.Pages
             return Page();
         }
 
-        [HttpPost]
-        [Authorize]
         public async Task<IActionResult> AddTeam([FromBody]TeamInfo team)
         {
             await this.teamsManager.AddTeamAsync(User.Identity.Name, team, CancellationToken.None);

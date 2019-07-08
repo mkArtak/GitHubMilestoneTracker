@@ -1,0 +1,12 @@
+﻿@page
+@model PullRequestsModel
+@{
+    ViewData["Title"] = "Pull Requests";
+}
+
+@if (Model.PRVM != null)
+{
+<div class="row">
+    <partial name="~/Pages/PartialViews/PullRequestsView.cshtml" for="PRVM" />
+</div>
+}

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace MilestoneTracker.Pages
 {
     [Authorize]
-    public class IndexModel : PageModel
+    public class PullRequestsModel : PageModel
     {
         private const char milestoneSeparatorCharacter = ';';
 
@@ -37,16 +37,16 @@ namespace MilestoneTracker.Pages
         [FromQuery(Name = QueryStringParameters.TeamName)]
         public string TeamName { get; set; }
 
-        [FromQuery(Name = QueryStringParameters.Label)]
+        [FromQuery]
         public string Label { get; set; }
 
         public IEnumerable<string> Labels { get => this.lazyLabelsLoader.Value; }
 
         public IEnumerable<string> Milestones { get => this.lazyMilestonesLoader.Value; }
 
-        public WorkDataViewModel Work { get; set; }
+        public MergedPRsViewModel PRVM { get; set; }
 
-        public IndexModel(
+        public PullRequestsModel(
             WorkEstimatorFactory workEstimatorFactory,
             IUserTeamsManager userTeamsManager)
         {
@@ -76,7 +76,7 @@ namespace MilestoneTracker.Pages
                 return Redirect("/Teams");
             }
 
-            if (this.Milestone == null)
+            if (this.currentTeam == null)
             {
                 await this.GetCurrentTeamAsync(cancellationToken);
             }
@@ -92,57 +92,20 @@ namespace MilestoneTracker.Pages
                 IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(team, cancellationToken);
                 team = await workEstimator.GetTeamUserIcons();
 
-                this.Work = new WorkDataViewModel
-                {
-                    Team = team
-                };
-
-                await this.RetrieveWorkloadAsync(workEstimator, cancellationToken);
+                await this.RetrievePullRequests(workEstimator, team, cancellationToken);
             }
 
             return Page();
         }
 
-        private async Task RetrieveWorkloadAsync(IWorkEstimator workEstimator, CancellationToken cancellationToken)
+        private async Task RetrievePullRequests(IWorkEstimator workEstimator, TeamInfo team, CancellationToken cancellationToken)
         {
-            IList<Task> tasks = new List<Task>();
-            TeamInfo currentTeam = await this.GetCurrentTeamAsync(cancellationToken);
-            this.Work.TeamName = currentTeam.Name;
-            this.Work.Label = this.Label;
-            object syncRoot = new object();
-
-            foreach (var milestone in this.Milestones)
+            this.PRVM = new MergedPRsViewModel
             {
-                tasks.Add(Task.Run(async () =>
-                {
-                    IEnumerable<WorkItem> issues = await workEstimator.GetWorkItemsAsync(
-                        new IssuesQuery
-                        {
-                            Team = currentTeam,
-                            Milestone = milestone,
-                            FilterLabels = this.Labels,
-                            Clause = IssuesQueryClause.Open,
-                            QueryIssues = true,
-                            IncludeInvestigations = true
-                        },
-                        cancellationToken);
-                    IEnumerable<string> members = currentTeam.GetMembersToIncludeInReport();
-                    if (members == null || !members.Any())
-                    {
-                        members = new string[] { "Unassigned" };
-                    }
-
-                    foreach (var member in members)
-                    {
-                        lock (syncRoot)
-                        {
-                            this.Work[member, milestone] = issues.Where(item => item.Owner == member).Sum(item => item.Cost);
-                        }
-                    }
-                }));
-            }
-
-            await Task.WhenAll(tasks);
+                PullRequests = await workEstimator.GetPullRequestsAsync(DateTimeOffset.UtcNow.AddDays(-7), cancellationToken),
+                Team = team,
+                IconRetriever = await this.CreateProfileIconRetriever(team, cancellationToken)
+            };
         }
 
         private async Task<IWorkEstimator> GetWorkEstimatorAsync(TeamInfo team, CancellationToken cancellationToken)
@@ -152,6 +115,15 @@ namespace MilestoneTracker.Pages
             // This allows the client to make requests to the GitHub API on behalf of the user
             // without ever having the user's OAuth credentials.
             return this.workEstimatorFactory.Create(accessToken, team);
+        }
+
+        private async Task<IProfileIconRetriever> CreateProfileIconRetriever(TeamInfo team, CancellationToken cancellationToken)
+        {
+            string accessToken = await GetAccessToken();
+
+            // This allows the client to make requests to the GitHub API on behalf of the user
+            // without ever having the user's OAuth credentials.
+            return this.workEstimatorFactory.CreateProfileIconRetriever(accessToken, team);
         }
 
         private Task<string> GetAccessToken()

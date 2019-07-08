@@ -6,16 +6,16 @@ namespace MilestoneTracker.Pages
 {
     public class MilestoneBurndownModel : PageModel
     {
-        [FromQuery]
+        [FromQuery(Name = QueryStringParameters.Milestone)]
         public string Milestone { get; set; }
 
-        [FromQuery]
+        [FromQuery(Name = QueryStringParameters.TeamName)]
         public string TeamName { get; set; }
 
-        [FromQuery]
+        [FromQuery(Name = QueryStringParameters.Label)]
         public string Label { get; set; }
 
-        [FromQuery]
+        [FromQuery(Name = QueryStringParameters.IncludeInvestigations)]
         public bool IncludeInvestigations { get; set; }
 
         public BurndownChartModel BurndownModel { get; set; }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilestoneTracker.Contracts;
 using MilestoneTracker.Contracts.DTO;
+using MilestoneTracker.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace MilestoneTracker.Controllers
 {
     [Route("api/Burndown")]
     [Authorize]
-    public class BurndownController : Controller
+    public class BurndownController : ControllerBase
     {
         private readonly WorkEstimatorFactory workEstimatorFactory;
         private readonly IUserTeamsManager userTeamsManager;
@@ -33,7 +34,7 @@ namespace MilestoneTracker.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetBurndownDataAsync([FromQuery]string teamName, [FromQuery]string milestone, [FromQuery]string label, [FromQuery]bool includeInvestigations, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetBurndownDataAsync([FromQuery(Name = QueryStringParameters.TeamName)]string teamName, [FromQuery(Name = QueryStringParameters.Milestone)]string milestone, [FromQuery(Name = QueryStringParameters.Label)]string label, [FromQuery]bool includeInvestigations, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
