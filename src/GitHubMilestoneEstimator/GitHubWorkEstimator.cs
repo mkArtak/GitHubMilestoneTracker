@@ -18,7 +18,6 @@ namespace GitHub.Client
         private readonly IGitHubClient client;
         private readonly TeamInfo teamInfo;
         private readonly ILogger logger;
-        private bool iconsRetrieved;
 
         private static readonly PullRequestToPRConverter prConverter = new PullRequestToPRConverter();
 
@@ -84,22 +83,6 @@ namespace GitHub.Client
             }
 
             return result;
-        }
-
-        public async Task<TeamInfo> GetTeamUserIcons()
-        {
-            if (!this.iconsRetrieved)
-            {
-                this.iconsRetrieved = true;
-                foreach (var item in this.teamInfo.TeamMembers)
-                {
-                    var user = await this.client.User.Get(item.Name);
-
-                    item.IconUrl = user.AvatarUrl;
-                }
-            }
-
-            return this.teamInfo;
         }
 
         public async Task<BurndownDTO> GetBurndownDataAsync(IssuesQuery query, CancellationToken cancellationToken)

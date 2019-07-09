@@ -13,7 +13,5 @@ namespace MilestoneTracker.Contracts
         Task<IEnumerable<PR>> GetPullRequestsAsync(DateTimeOffset mergedOnOrAfter, CancellationToken cancellationToken);
 
         Task<BurndownDTO> GetBurndownDataAsync(IssuesQuery query, CancellationToken none);
-
-        Task<TeamInfo> GetTeamUserIcons();
     }
 }

@@ -3,6 +3,8 @@ using MilestoneTracker.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MilestoneTracker.ViewModels
 {
@@ -16,6 +18,8 @@ namespace MilestoneTracker.ViewModels
         private readonly Lazy<string[]> membersWithMinAmountOfWorkCache;
 
         public TeamInfo Team { get; set; }
+
+        public IProfileIconRetriever IconRetriever { get; internal set; }
 
         private IDictionary<string, IDictionary<string, MemberMilestoneData>> workPerMember { get; set; } = new Dictionary<string, IDictionary<string, MemberMilestoneData>>();
         private IDictionary<string, double> amountOfWorkPerMember = new Dictionary<string, double>();

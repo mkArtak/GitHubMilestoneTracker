@@ -18,7 +18,7 @@
     </thead>
     @foreach (var member in Model.Members)
     {
-        var memberIcon = Model.Team.TeamMembers.Where(tm => tm.Name == member).Single().IconUrl;
+        var memberIcon = await Model.IconRetriever.GetUserProfileIconUrl(member);
         <tr>
             <td class="row-first-item @Model.GetClassForMemberCell(member)">
                 <img src="@memberIcon" class="profileIcon" />

@@ -90,7 +90,6 @@ namespace MilestoneTracker.Pages
                 }
 
                 IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(team, cancellationToken);
-                team = await workEstimator.GetTeamUserIcons();
 
                 await this.RetrievePullRequests(workEstimator, team, cancellationToken);
             }

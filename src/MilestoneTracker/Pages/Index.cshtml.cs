@@ -90,11 +90,11 @@ namespace MilestoneTracker.Pages
                 }
 
                 IWorkEstimator workEstimator = await this.GetWorkEstimatorAsync(team, cancellationToken);
-                team = await workEstimator.GetTeamUserIcons();
 
                 this.Work = new WorkDataViewModel
                 {
-                    Team = team
+                    Team = team,
+                    IconRetriever = await this.CreateProfileIconRetriever(team, cancellationToken)
                 };
 
                 await this.RetrieveWorkloadAsync(workEstimator, cancellationToken);
@@ -167,6 +167,15 @@ namespace MilestoneTracker.Pages
             }
 
             return this.currentTeam;
+        }
+
+        private async Task<IProfileIconRetriever> CreateProfileIconRetriever(TeamInfo team, CancellationToken cancellationToken)
+        {
+            string accessToken = await GetAccessToken();
+
+            // This allows the client to make requests to the GitHub API on behalf of the user
+            // without ever having the user's OAuth credentials.
+            return this.workEstimatorFactory.CreateProfileIconRetriever(accessToken, team);
         }
     }
 }
