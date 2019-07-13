@@ -23,45 +23,46 @@ namespace MT.DataManagement.Teams.AzureSql
 
         public async Task AddTeamAsync(string ownerLogin, TeamInfo info, CancellationToken cancellationToken)
         {
-            ownerLogin.Ensure(nameof(ownerLogin)).IsNotNullOrWhitespace();
-            info.Ensure(nameof(info)).IsNotNull();
-            cancellationToken.ThrowIfCancellationRequested();
+            throw new NotImplementedException();
+            //ownerLogin.Ensure(nameof(ownerLogin)).IsNotNullOrWhitespace();
+            //info.Ensure(nameof(info)).IsNotNull();
+            //cancellationToken.ThrowIfCancellationRequested();
 
-            Member owner = this.context.Members.Where(item => item.MemberId == ownerLogin).SingleOrDefault();
-            if (owner == null)
-            {
-                owner = new Member
-                {
-                    MemberId = ownerLogin
-                };
-                await this.context.Members.AddAsync(owner, cancellationToken);
-            }
+            //Member owner = this.context.Members.Where(item => item.MemberId == ownerLogin).SingleOrDefault();
+            //if (owner == null)
+            //{
+            //    owner = new Member
+            //    {
+            //        MemberId = ownerLogin
+            //    };
+            //    await this.context.Members.AddAsync(owner, cancellationToken);
+            //}
 
-            Team team = new Team
-            {
-                TeamId = info.Name,
-                CostMarkers = info.CostLabels.Select(item => Convert(item)).ToList(),
-                DefaultMilestonesToTrack = info.DefaultMilestonesToTrack,
-                Organization = info.Organization,
-            };
-            if (info.Repositories != null)
-            {
-                foreach (var r in info.Repositories)
-                {
-                    team.Repos.Add(new Repo { RepoId = r });
-                }
-            }
+            //Team team = new Team
+            //{
+            //    TeamId = info.Name,
+            //    CostMarkers = info.CostLabels.Select(item => Convert(item)).ToList(),
+            //    DefaultMilestonesToTrack = info.DefaultMilestonesToTrack,
+            //    Organization = info.Organization,
+            //};
+            //if (info.Repositories != null)
+            //{
+            //    foreach (var r in info.Repositories)
+            //    {
+            //        team.Repos.Add(new Repo { RepoId = r });
+            //    }
+            //}
 
-            if (info.TeamMembers != null)
-            {
-                foreach (var member in info.TeamMembers)
-                {
-                    team.Members.Add(new Member { MemberId = member.Name });
-                }
-                // TODO: Rework this part to allow storing the "IncludeInReporting" field for members.
-            }
+            //if (info.TeamMembers != null)
+            //{
+            //    foreach (var member in info.TeamMembers)
+            //    {
+            //        team.Members.Add(new Member { MemberId = member.Name });
+            //    }
+            //    // TODO: Rework this part to allow storing the "IncludeInReporting" field for members.
+            //}
 
-            await this.context.Teams.AddAsync(team, cancellationToken);
+            //await this.context.Teams.AddAsync(team, cancellationToken);
         }
 
         public async Task<TeamInfo> GetTeamInfoAsync(string teamName, CancellationToken cancellationToken)
@@ -148,8 +149,9 @@ namespace MT.DataManagement.Teams.AzureSql
 
         private void PopulateRelationProperties(string teamName, TeamInfo result)
         {
-            result.TeamMembers = this.context.TeamMembers.Where(tm => tm.TeamId == teamName).Select(tm => new MilestoneTracker.Contracts.TeamMember { Name = tm.MemberId, IncludeInReports = tm.IncludeInReports }).ToArray();
-            result.Repositories = this.context.TeamRepos.Where(tr => tr.TeamId == teamName).Select(tr => tr.RepoId).ToArray();
+            throw new NotImplementedException();
+            //result.TeamMembers = this.context.TeamMembers.Where(tm => tm.TeamId == teamName).Select(tm => new MilestoneTracker.Contracts.TeamMember { Name = tm.MemberId, IncludeInReports = tm.IncludeInReports }).ToArray();
+            //result.Repos = this.context.TeamRepos.Where(tr => tr.TeamId == teamName).Select(tr => tr.RepoId).ToArray();
         }
 
         private static MilestoneTracker.Contracts.CostMarker Convert(Model.CostMarker value) => new MilestoneTracker.Contracts.CostMarker
@@ -166,16 +168,17 @@ namespace MT.DataManagement.Teams.AzureSql
 
         private static async Task<TeamInfo> ToTeamInfoAsync(IQueryable<Team> teamQuery)
         {
-            Team team = await teamQuery.SingleAsync();
-            var result = new TeamInfo
-            {
-                CostLabels = team.CostMarkers?.Select(item => Convert(item))?.ToArray(),
-                DefaultMilestonesToTrack = team.DefaultMilestonesToTrack,
-                Name = team.TeamId,
-                Organization = team.Organization,
-            };
+            //Team team = await teamQuery.SingleAsync();
+            //var result = new TeamInfo
+            //{
+            //    CostLabels = team.CostMarkers?.Select(item => Convert(item))?.ToArray(),
+            //    DefaultMilestonesToTrack = team.DefaultMilestonesToTrack,
+            //    Name = team.TeamId,
+            //    Organization = team.Organization,
+            //};
 
-            return result;
+            //return result;
+            throw new NotImplementedException();
         }
     }
 }

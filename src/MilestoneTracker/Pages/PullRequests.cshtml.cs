@@ -101,7 +101,7 @@ namespace MilestoneTracker.Pages
         {
             this.PRVM = new MergedPRsViewModel
             {
-                PullRequests = await workEstimator.GetPullRequestsAsync(DateTimeOffset.UtcNow.AddDays(-7), cancellationToken),
+                PullRequests = await workEstimator.GetPullRequestsAsync(DateTimeOffset.UtcNow.AddDays(-15), cancellationToken),
                 Team = team,
                 IconRetriever = await this.CreateProfileIconRetriever(team, cancellationToken)
             };

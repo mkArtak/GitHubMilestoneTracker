@@ -1,6 +1,6 @@
 ﻿using AM.Common.Validation;
-using GitHubMilestoneEstimator;
 using GitHubMilestoneEstimator.Converters;
+using GitHubMilestoneEstimator.Extensions;
 using Microsoft.Extensions.Logging;
 using MilestoneTracker.Contracts;
 using MilestoneTracker.Contracts.DTO;
@@ -33,13 +33,22 @@ namespace GitHub.Client
             query.Ensure(nameof(query)).IsNotNull();
 
             var searchResults = await QueryIssuesAsync(query);
-            return searchResults
-                .Select(item => new WorkItem
+            IList<WorkItem> result = new List<WorkItem>();
+
+            foreach (var repo in searchResults)
+            {
+                foreach (var repoIssue in repo.Value)
                 {
-                    Owner = item.Assignee == null ? "Unassigned" : item.Assignee.Login,
-                    Cost = this.GetIssueCost(item),
-                    Id = item.Number
-                }).ToList();
+                    result.Add(new WorkItem
+                    {
+                        Owner = repoIssue.Assignee == null ? "Unassigned" : repoIssue.Assignee.Login,
+                        Cost = this.GetIssueCost(repoIssue),
+                        Id = repoIssue.Number
+                    });
+                }
+            }
+
+            return result;
         }
 
         public async Task<IEnumerable<PR>> GetPullRequestsAsync(DateTimeOffset mergedOnOrAfter, CancellationToken cancellationToken)
@@ -58,20 +67,23 @@ namespace GitHub.Client
             };
 
             var queryResult = await QueryPRsToConsider(query);
-            foreach (var issue in queryResult)
+            foreach (var kv in queryResult)
             {
-                if (issue.PullRequest != null && issue.ClosedAt.HasValue && issue.ClosedAt.Value >= mergedOnOrAfter)
+                foreach (var issue in kv.Value)
                 {
-                    result.Add(new PR
+                    if (issue.PullRequest != null && issue.ClosedAt.HasValue && issue.ClosedAt.Value >= mergedOnOrAfter)
                     {
-                        ClosedAt = issue.ClosedAt,
-                        CreatorLogin = issue.User.Login,
-                        Url = issue.HtmlUrl,
-                        Merged = issue.ClosedAt.HasValue,
-                        Number = issue.Number,
-                        MergedAt = issue.ClosedAt.Value,
-                        Title = issue.Title,
-                    });
+                        result.Add(new PR
+                        {
+                            ClosedAt = issue.ClosedAt,
+                            CreatorLogin = issue.User.Login,
+                            Url = issue.HtmlUrl,
+                            Merged = issue.ClosedAt.HasValue,
+                            Number = issue.Number,
+                            MergedAt = issue.ClosedAt.Value,
+                            Title = issue.Title,
+                        });
+                    }
                 }
             }
 
@@ -136,25 +148,30 @@ namespace GitHub.Client
 
         private async Task<IEnumerable<Issue>> QueryIssuesToConsider(IssuesQuery query)
         {
-            IEnumerable<Issue> allIssues = await QueryIssuesAsync(query);
-            if (!query.IncludeInvestigations)
+            IDictionary<string, IEnumerable<Issue>> allIssues = await QueryIssuesAsync(query);
+            foreach (var repo in query.Team.Repos)
             {
-                allIssues = allIssues.Where(issue =>
+                var repoIssues = allIssues[repo.Name];
+                if (!query.IncludeInvestigations)
                 {
-                    if (issue.State.Value == ItemState.Closed && !issue.HasLabel(query.Team.FixedIssuesIndicatingLabel))
+                    repoIssues = repoIssues.Where(issue =>
                     {
-                        // Exclude closed issues, which are not marked as fixed.
-                        return false;
-                    }
+                        if (issue.State.Value == ItemState.Closed && !issue.HasLabel(repo.FixedIssueLabel))
+                        {
+                            // Exclude closed issues, which are not marked as fixed.
+                            return false;
+                        }
 
-                    return true;
-                });
+                        return true;
+                    });
+                    allIssues[repo.Name] = repoIssues;
+                }
             }
 
-            return allIssues;
+            return allIssues.FlattenValues();
         }
 
-        private async Task<IList<Issue>> QueryIssuesAsync(IssuesQuery query)
+        private async Task<IEnumerable<Issue>> QueryRepositoryIssuesAsync(IssuesQuery query, MilestoneTracker.Contracts.Model.Repository repo)
         {
             SearchIssuesRequest request = new SearchIssuesRequest
             {
@@ -163,31 +180,39 @@ namespace GitHub.Client
                 Labels = query.FilterLabels
             };
 
-            if (query.Team.LabelsToExclude != null && query.Team.LabelsToExclude.Any())
+            if (repo.RepoRules.LabelsToExclude != null && repo.RepoRules.LabelsToExclude.Any())
             {
                 request.Exclusions = new SearchIssuesRequestExclusions
                 {
-                    Labels = query.Team.LabelsToExclude
+                    Labels = repo.RepoRules.LabelsToExclude
                 };
             }
+            request.Repos.Add(repo.Name);
 
-            request.ApplyRepositoriesFilter(query.Team.Repositories);
-
-            IList<Issue> result = await this.QueryResultsAsync(request, issue => IssueBelongsToTeam(query.Team, issue));
-
-            /// TODO: Remove this later
-            //teamIssues = teamIssues.Where(item => !item.ClosedAt.HasValue || item.ClosedAt.Value >= new DateTimeOffset(2019, 5, 27, 0, 0, 0, TimeSpan.Zero)).ToList();
+            IList<Issue> result = await this.QueryResultsAsync(request, issue => IssueBelongsToTeam(issue));
             return result;
         }
 
-        private bool IssueBelongsToTeam(TeamInfo team, Issue issue)
+        private async Task<IDictionary<string, IEnumerable<Issue>>> QueryIssuesAsync(IssuesQuery query)
         {
-            if (team.AreaLabels != null && !issue.Labels.Any(lbl => team.AreaLabels.Contains(lbl.Name)))
+            IDictionary<string, IEnumerable<Issue>> result = new Dictionary<string, IEnumerable<Issue>>();
+            foreach (var repo in query.Team.Repos)
+            {
+                result.Add(repo.Name, await QueryRepositoryIssuesAsync(query, repo));
+            }
+
+            return result;
+        }
+
+        private bool IssueBelongsToTeam(Issue issue)
+        {
+            var repository = GetIssueRepository(issue);
+            if (repository.RepoRules.LabelsToInclude != null && !issue.Labels.Any(lbl => repository.RepoRules.LabelsToInclude.Contains(lbl.Name)))
             {
                 return false;
             }
 
-            IEnumerable<string> membersToIncludeInReport = team.GetMembersToIncludeInReport();
+            IEnumerable<string> membersToIncludeInReport = this.teamInfo.GetMembersToIncludeInReport();
             return issue.Assignee == null || membersToIncludeInReport.Any(memberName => String.Equals(memberName, issue.Assignee.Login, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -252,15 +277,16 @@ namespace GitHub.Client
 
         private double GetIssueCost(Issue issue)
         {
+            MilestoneTracker.Contracts.Model.Repository repo = GetIssueRepository(issue);
             string costLabel = issue.Labels.SingleOrDefault(
-                item => this.teamInfo.CostLabels.Any(
+                item => repo.CostLabels.Any(
                     lbl => lbl.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase)))?.Name;
             if (costLabel == null)
             {
                 return 0;
             }
 
-            CostMarker costMarker = this.teamInfo.CostLabels.Where(item => item.Name == costLabel).SingleOrDefault();
+            CostMarker costMarker = repo.CostLabels.Where(item => item.Name == costLabel).SingleOrDefault();
             if (costMarker == null)
             {
                 return 0;
@@ -269,10 +295,19 @@ namespace GitHub.Client
             return costMarker.Factor;
         }
 
+        private MilestoneTracker.Contracts.Model.Repository GetIssueRepository(Issue issue)
+        {
+            string issueRepository = $"{issue.HtmlUrl.Split('/')[3]}/{issue.HtmlUrl.Split('/')[4]}";
+            return this.teamInfo.Repos.Single(r => String.Equals(r.Name, issueRepository, StringComparison.InvariantCultureIgnoreCase));
+        }
+
         private static IEnumerable<IssueIsQualifier> GetSearchQueryTerm(IssuesQuery query)
         {
-            List<IssueIsQualifier> terms = new List<IssueIsQualifier>(2);
-            terms.Add(query.QueryIssues ? IssueIsQualifier.Issue : IssueIsQualifier.PullRequest);
+            List<IssueIsQualifier> terms = new List<IssueIsQualifier>(2)
+            {
+                query.QueryIssues ? IssueIsQualifier.Issue : IssueIsQualifier.PullRequest
+            };
+
             switch (query.Clause)
             {
                 case IssuesQueryClause.All:
@@ -297,29 +332,14 @@ namespace GitHub.Client
             return terms;
         }
 
-        private async Task<IEnumerable<Issue>> QueryPRsToConsider(IssuesQuery query)
+        private async Task<IDictionary<string, IEnumerable<Issue>>> QueryPRsToConsider(IssuesQuery query)
         {
-            SearchIssuesRequest request = new SearchIssuesRequest
+            IDictionary<string, IEnumerable<Issue>> result = new Dictionary<string, IEnumerable<Issue>>();
+            foreach (var repo in query.Team.Repos)
             {
-                Is = GetSearchQueryTerm(query),
-                Milestone = query.Milestone,
-                Labels = query.FilterLabels
-            };
-
-            if (query.Team.LabelsToExclude != null && query.Team.LabelsToExclude.Any())
-            {
-                request.Exclusions = new SearchIssuesRequestExclusions
-                {
-                    Labels = query.Team.LabelsToExclude
-                };
+                result.Add(repo.Name, await QueryRepositoryIssuesAsync(query, repo));
             }
 
-            request.ApplyRepositoriesFilter(query.Team.Repositories);
-
-            IList<Issue> result = await this.QueryResultsAsync(request, issue => IssueBelongsToTeam(query.Team, issue));
-
-            /// TODO: Remove this later
-            //teamIssues = teamIssues.Where(item => !item.ClosedAt.HasValue || item.ClosedAt.Value >= new DateTimeOffset(2019, 5, 27, 0, 0, 0, TimeSpan.Zero)).ToList();
             return result;
         }
     }

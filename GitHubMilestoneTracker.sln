@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27508.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28917.182
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MilestoneTracker", "src\MilestoneTracker\MilestoneTracker.csproj", "{4D1BCD14-867A-4DD2-A30D-0EA8C1CBFFAF}"
 EndProject
@@ -20,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MilestoneTracker.DataManage
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MT.DataManagement.Teams.AzureSql", "src\MT.DataManagement.Teams.AzureSql\MT.DataManagement.Teams.AzureSql.csproj", "{1A449BDE-2CA7-4288-9DAE-9A6934F5C16B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoAnalytics.WebClient", "src\RepoAnalytics.WebClient\RepoAnalytics.WebClient.csproj", "{B959A9A0-FD53-452E-ADB9-F70628245FE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepoAnalytics.WebClient", "src\RepoAnalytics.WebClient\RepoAnalytics.WebClient.csproj", "{B959A9A0-FD53-452E-ADB9-F70628245FE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

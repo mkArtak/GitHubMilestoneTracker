@@ -1,4 +1,5 @@
 ﻿using MilestoneTracker.Contracts;
+using MilestoneTracker.Contracts.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,17 +12,9 @@ namespace MilestoneTracker.Model
     {
         private TeamInfo _team = new TeamInfo
         {
-            CostLabels = new[] {
-                new CostMarker { Name = "area-mvc", Factor = 1 },
-                new CostMarker { Name = "area-blazor", Factor = 1 }
-            },
-            FixedIssuesIndicatingLabel = "Done",
             DefaultMilestonesToTrack = "3.0.0-preview8",
-            AreaLabels = new[] { "area-mvc", "area-blazor" },
             Name = "ASP.NET Core MVC",
             Organization = "aspnet",
-            Repositories = new[] { "aspnet/AspNetCore" },
-            LabelsToExclude = new[] { "Validation", "duplicate", "external" },
             TeamMembers = new[] {
                 "mkArtakMSFT",
                 "ajaybhargavb",
@@ -34,7 +27,22 @@ namespace MilestoneTracker.Model
                 "SteveSandersonMS" }
             .Select(name => new TeamMember { Name = name, IncludeInReports = true })
             .Append(new TeamMember { Name = "mkArtak", IncludeInReports = false })
-            .ToArray()
+            .ToArray(),
+            Repos = new[] {
+                new Repository{
+                    Name = "aspnet/AspNetCore",
+                    CostLabels=new[] {
+                        new CostMarker { Name = "area-mvc", Factor = 1 },
+                        new CostMarker { Name = "area-blazor", Factor = 1 }
+                    },
+                    FixedIssueLabel = "Done",
+                    PRRules = new Rules{ LabelsToInclude = new[]{ "area-mvc", "area-blazor" } },
+                    RepoRules = new Rules {
+                        LabelsToInclude = new[]{ "area-mvc", "area-blazor" },
+                        LabelsToExclude =new[]{"external", "duplicate", "Validation" }
+                    }
+                }
+            }
         };
 
         public Task AddMemberAsync(string teamName, TeamMember member, CancellationToken cancellationToken)
