@@ -20,7 +20,7 @@ namespace MilestoneTracker.DataManagement.Teams
 
             this.mappingsOptions = options.Value;
 
-            /// TODO: remove - a temp around
+            /// TODO: remove - a temp workaround
             if (this.mappingsOptions.Mappings == null)
             {
                 this.mappingsOptions = new UserTeamsOptions { Mappings = new Dictionary<string, IEnumerable<string>>() };
