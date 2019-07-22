@@ -9,32 +9,64 @@ namespace MilestoneTracker.Model
 {
     public class InMemoryTeamsManager : ITeamsManager, IUserTeamsManager
     {
-        private TeamInfo _team = new TeamInfo
-        {
-            CostLabels = new[] {
-                new CostMarker { Name = "area-mvc", Factor = 1 },
-                new CostMarker { Name = "area-blazor", Factor = 1 }
+        private IDictionary<string, TeamInfo> teams = new Dictionary<string, TeamInfo> {
+            { "ASP.NET Core MVC",  new TeamInfo
+                {
+                    CostLabels = new[] {
+                        new CostMarker { Name = "area-mvc", Factor = 1 },
+                        new CostMarker { Name = "area-blazor", Factor = 1 }
+                    },
+                    FixedIssuesIndicatingLabel = "Done",
+                    DefaultMilestonesToTrack = "3.0.0-preview8",
+                    AreaLabels = new[] { "area-mvc", "area-blazor" },
+                    Name = "ASP.NET Core MVC",
+                    Organization = "aspnet",
+                    Repositories = new[] { "aspnet/AspNetCore", "aspnet/Extensions" },
+                    LabelsToExclude = new[] { "Validation", "duplicate", "external" },
+                    TeamMembers = new[] {
+                        "mkArtakMSFT",
+                        "ajaybhargavb",
+                        "javiercn",
+                        "NTaylorMullen",
+                        "pranavkm",
+                        "dougbu",
+                        "ryanbrandenburg",
+                        "rynowak",
+                        "SteveSandersonMS" }
+                    .Select(name => new TeamMember { Name = name, IncludeInReports = true })
+                    .Append(new TeamMember { Name = "mkArtak", IncludeInReports = false })
+                    .ToArray()
+                }
             },
-            FixedIssuesIndicatingLabel = "Done",
-            DefaultMilestonesToTrack = "3.0.0-preview8",
-            AreaLabels = new[] { "area-mvc", "area-blazor" },
-            Name = "ASP.NET Core MVC",
-            Organization = "aspnet",
-            Repositories = new[] { "aspnet/AspNetCore" },
-            LabelsToExclude = new[] { "Validation", "duplicate", "external" },
-            TeamMembers = new[] {
-                "mkArtakMSFT",
-                "ajaybhargavb",
-                "javiercn",
-                "NTaylorMullen",
-                "pranavkm",
-                "dougbu",
-                "ryanbrandenburg",
-                "rynowak",
-                "SteveSandersonMS" }
-            .Select(name => new TeamMember { Name = name, IncludeInReports = true })
-            .Append(new TeamMember { Name = "mkArtak", IncludeInReports = false })
-            .ToArray()
+            {
+                "ASP.NET Core MVC Razor",  new TeamInfo
+                {
+                    CostLabels = new[] {
+                        new CostMarker { Name = "area-mvc", Factor = 1 },
+                        new CostMarker { Name = "area-blazor", Factor = 1 }
+                    },
+                    FixedIssuesIndicatingLabel = "Done",
+                    DefaultMilestonesToTrack = "3.0.0-preview8",
+                    AreaLabels = null,
+                    Name = "ASP.NET Core MVC Razor",
+                    Organization = "aspnet",
+                    Repositories = new[] { "aspnet/AspNetCore-Tooling" },
+                    LabelsToExclude = new[] { "Validation", "duplicate", "external" },
+                    TeamMembers = new[] {
+                        "mkArtakMSFT",
+                        "ajaybhargavb",
+                        "javiercn",
+                        "NTaylorMullen",
+                        "pranavkm",
+                        "dougbu",
+                        "ryanbrandenburg",
+                        "rynowak",
+                        "SteveSandersonMS" }
+                    .Select(name => new TeamMember { Name = name, IncludeInReports = true })
+                    .Append(new TeamMember { Name = "mkArtak", IncludeInReports = false })
+                    .ToArray()
+                }
+            },
         };
 
         public Task AddMemberAsync(string teamName, TeamMember member, CancellationToken cancellationToken)
@@ -49,37 +81,34 @@ namespace MilestoneTracker.Model
 
         public Task<TeamInfo> GetTeamInfoAsync(string teamName, CancellationToken cancellationToken)
         {
-            if (teamName != _team.Name)
+            if (!this.teams.TryGetValue(teamName, out TeamInfo team))
             {
                 throw new ArgumentException($"Team `{teamName}` is not configured");
             }
 
-            return Task.FromResult(_team);
+            return Task.FromResult(team);
         }
 
-        public Task<TeamInfo> GetTeamInfoAsync(string userName, string teamName, CancellationToken token)
+        public async Task<TeamInfo> GetTeamInfoAsync(string userName, string teamName, CancellationToken token)
         {
-            if (_team.Name == teamName && _team.TeamMembers.Any(item => item.Name == userName))
+            var team = await GetTeamInfoAsync(teamName, token);
+            if (team != null && team.TeamMembers.Any(item => item.Name == userName))
             {
-                return Task.FromResult(_team);
+                return team;
             }
 
-            return Task.FromResult<TeamInfo>(null);
+            return null;
         }
 
         public Task<PagedDataResponse<TeamInfo>> GetTeamsAsync(int count, CancellationToken cancellationToken, string continuationToken)
         {
-            return Task.FromResult(new PagedDataResponse<TeamInfo>(new[] { _team }, null));
+            return Task.FromResult(new PagedDataResponse<TeamInfo>(this.teams.Values, null));
         }
 
         public Task<IEnumerable<string>> GetUserTeamsAsync(string userName, CancellationToken token)
         {
-            if (_team.TeamMembers.Any(item => item.Name == userName))
-            {
-                return Task.FromResult((IEnumerable<string>)new[] { _team.Name });
-            }
-
-            return Task.FromResult<IEnumerable<string>>(null);
+            var teams = this.teams.Values.Where(t => t.TeamMembers.Any(item => item.Name == userName)).Select(t => t.Name);
+            return Task<IEnumerable<string>>.FromResult(teams);
         }
 
         public Task RemoveTeamMemberAsync(string teamName, string memberName, CancellationToken token)
