@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MilestoneTracker.Contracts;
+using MilestoneTracker.Formatters;
 using MilestoneTracker.Model;
 using MilestoneTracker.Options;
 
@@ -21,7 +22,10 @@ namespace MilestoneTracker
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                options.OutputFormatters.Add(new MarkdownOutputFormatter());
+            });
 
             services.AddOptions();
             services.Configure<GitHubAuthOptions>(this.Configuration.GetSection("GitHubAuth"));

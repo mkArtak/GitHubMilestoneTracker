@@ -2,11 +2,14 @@
 @model PullRequestsModel
 @{
     ViewData["Title"] = "Pull Requests";
+    var routeData = new Dictionary<string, string> { { "team", Model.TeamName } };
 }
 
 @if (Model.PRVM != null)
 {
-<div class="row">
-    <partial name="~/Pages/PartialViews/PullRequestsView.cshtml" for="PRVM" />
-</div>
+    <div class="row">
+        <partial name="~/Pages/PartialViews/PullRequestsView.cshtml" for="PRVM" />
+
+        <a asp-controller="PullRequests" asp-action="ExportMarkdown" asp-all-route-data="routeData" target="_blank">Export</a>
+    </div>
 }
